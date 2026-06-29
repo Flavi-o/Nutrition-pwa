@@ -7477,4 +7477,7 @@ async function initApp() {
   await initCloud();
 }
 
+// Request persistent storage so iOS doesn't wipe data when clearing cache
+if (navigator.storage?.persist) navigator.storage.persist();
+
 initApp();

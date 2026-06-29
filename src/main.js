@@ -40,8 +40,9 @@ root.innerHTML = `
       <button id="navRappel">Rappel</button>
       <button id="navTrash">Poubelle</button>
       <button id="navImport">Importer recette</button>
-      <button id="navCloud" style="background:#0ea5e9; color:#fff; border:none; border-radius:8px; padding:7px 12px; font-weight:700; cursor:pointer;">☁️ Sync</button>
     </div>
+
+    <button id="navCloud" style="position:fixed; top:12px; right:12px; z-index:1500; background:#0ea5e9; color:#fff; border:none; border-radius:24px; padding:10px 16px; font-weight:700; font-size:14px; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.25);">☁️ Sync</button>
 
     <div id="cloudModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:2000; align-items:center; justify-content:center; padding:16px;">
       <div style="background:#fff; border-radius:16px; padding:24px; width:100%; max-width:400px; box-shadow:0 8px 32px rgba(0,0,0,.2);">

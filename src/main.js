@@ -5521,7 +5521,7 @@ async function loadFreeDays() {
 }
 
 const GOALS_JOURNALIER = { kcal:[1700,2300], prot:[145,155], carb:[195,210], fat:[38,45], fiber:[25,35], salt:[null,5] };
-const GOALS_FREE       = { kcal:[3400,3800], prot:[145,155], carb:[490,515], fat:[105,120], fiber:[25,35], salt:[null,8] };
+const GOALS_FREE       = { kcal:[1700,2300], prot:[145,155], carb:[490,515], fat:[105,120], fiber:[25,35], salt:[null,8] };
 
 const MEAL_TYPES = [
   { key: "breakfast",  label: "🌅 Petit-déjeuner" },

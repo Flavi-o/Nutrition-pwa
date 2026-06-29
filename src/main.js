@@ -1332,6 +1332,7 @@ let _offResults = [];
 let _offScanStream = null;
 let _offScanInterval = null;
 let _offZxingReader = null;
+let _offSearching = false;
 
 function _offGet(nutriments, key) {
   const v = nutriments?.[key + "_100g"];
@@ -1383,19 +1384,24 @@ async function offSearchByName(query) {
 }
 
 async function offSearchByBarcode(barcode) {
+  if (_offSearching) return;
+  _offSearching = true;
   const div = $("#offResults");
-  if (div) div.innerHTML = "<p style='opacity:.7'>Produit trouvé, chargement…</p>";
+  if (div) div.innerHTML = `<p style='opacity:.7'>Code détecté : <strong>${barcode}</strong> — recherche en cours…</p>`;
   try {
     const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,product_name_fr,nutriments,image_front_small_url,image_small_url,categories_tags`;
     const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (data.status === 1 && data.product) {
       renderOFFResults([data.product]);
     } else {
-      if (div) div.innerHTML = "<p style='opacity:.7'>Produit non trouvé dans Open Food Facts.</p>";
+      if (div) div.innerHTML = `<p style='opacity:.7'>Produit (${barcode}) non trouvé dans Open Food Facts.</p>`;
     }
-  } catch {
-    if (div) div.innerHTML = "<p style='color:red;'>Erreur de connexion.</p>";
+  } catch (err) {
+    if (div) div.innerHTML = `<p style='color:red;'>Erreur réseau : ${err.message}.<br>Vérifie ta connexion internet et réessaie.</p>`;
+  } finally {
+    _offSearching = false;
   }
 }
 
@@ -1449,7 +1455,7 @@ async function offStartScanner() {
       const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
       status.textContent = "Pointez vers un code-barres…";
       _offScanInterval = setInterval(async () => {
-        if (video.readyState < 2) return;
+        if (video.readyState < 2 || _offSearching) return;
         try {
           const codes = await detector.detect(video);
           if (codes.length > 0) {
@@ -1468,8 +1474,8 @@ async function offStartScanner() {
       video.srcObject = _offScanStream;
       await video.play();
       status.textContent = "Pointez vers un code-barres…";
-      reader.decodeFromStream(_offScanStream, video, (result, err) => {
-        if (result) {
+      reader.decodeFromStream(_offScanStream, video, (result) => {
+        if (result && !_offSearching) {
           offStopScanner();
           offSearchByBarcode(result.getText()).then(() => {
             $("#offResults")?.scrollIntoView({ behavior: "smooth", block: "start" });

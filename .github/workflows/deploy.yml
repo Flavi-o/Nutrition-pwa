@@ -26,7 +26,7 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          VITE_BASE: ${{ vars.VITE_BASE || '/' }}
+          VITE_BASE: /Nutrition-pwa/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

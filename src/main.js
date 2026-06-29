@@ -1383,23 +1383,40 @@ async function offSearchByName(query) {
   }
 }
 
+async function _offFetch(url) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 10000);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function offSearchByBarcode(barcode) {
   if (_offSearching) return;
   _offSearching = true;
   const div = $("#offResults");
   if (div) div.innerHTML = `<p style='opacity:.7'>Code détecté : <strong>${barcode}</strong> — recherche en cours…</p>`;
+  const fields = "product_name,product_name_fr,nutriments,image_front_small_url,image_small_url,categories_tags";
   try {
-    const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,product_name_fr,nutriments,image_front_small_url,image_small_url,categories_tags`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    let data;
+    try {
+      data = await _offFetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=${fields}`);
+    } catch {
+      // Fallback to v0 endpoint
+      data = await _offFetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    }
     if (data.status === 1 && data.product) {
       renderOFFResults([data.product]);
     } else {
       if (div) div.innerHTML = `<p style='opacity:.7'>Produit (${barcode}) non trouvé dans Open Food Facts.</p>`;
     }
   } catch (err) {
-    if (div) div.innerHTML = `<p style='color:red;'>Erreur réseau : ${err.message}.<br>Vérifie ta connexion internet et réessaie.</p>`;
+    if (div) div.innerHTML = `<p style='color:orange;'>Code scanné : <strong>${barcode}</strong><br>Impossible de contacter Open Food Facts (${err.message}).<br>Essaie de coller le code manuellement dans le champ de recherche ci-dessus.</p>`;
   } finally {
     _offSearching = false;
   }
@@ -1459,8 +1476,11 @@ async function offStartScanner() {
         try {
           const codes = await detector.detect(video);
           if (codes.length > 0) {
+            const code = codes[0].rawValue;
             offStopScanner();
-            await offSearchByBarcode(codes[0].rawValue);
+            const searchEl = $("#offSearch");
+            if (searchEl) searchEl.value = code;
+            await offSearchByBarcode(code);
             $("#offResults")?.scrollIntoView({ behavior: "smooth", block: "start" });
           }
         } catch { /* ignore frame errors */ }
@@ -1476,8 +1496,11 @@ async function offStartScanner() {
       status.textContent = "Pointez vers un code-barres…";
       reader.decodeFromStream(_offScanStream, video, (result) => {
         if (result && !_offSearching) {
+          const code = result.getText();
           offStopScanner();
-          offSearchByBarcode(result.getText()).then(() => {
+          const searchEl = $("#offSearch");
+          if (searchEl) searchEl.value = code;
+          offSearchByBarcode(code).then(() => {
             $("#offResults")?.scrollIntoView({ behavior: "smooth", block: "start" });
           });
         }

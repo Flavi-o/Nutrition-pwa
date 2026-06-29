@@ -1,35 +1,53 @@
-/* ── Mobile optimizations (≤ 768px) ─────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE LAYOUT  —  everything fits on screen, no horizontal scroll
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @media (max-width: 768px) {
 
-  /* ── Shell & layout ─────────────────────────────────────────── */
+  /* ── Base ────────────────────────────────────────────────────────────── */
+  html, body {
+    overflow-x: hidden !important;
+    -webkit-text-size-adjust: 100% !important;
+  }
+
+  * { box-sizing: border-box !important; }
+
+  /* ── Shell ───────────────────────────────────────────────────────────── */
   #appShell {
-    padding: 10px 12px 80px !important; /* bottom padding = nav bar height */
+    padding: 10px 12px calc(72px + env(safe-area-inset-bottom, 0px)) !important;
     max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
   }
 
   #appShell > h1 {
-    font-size: 17px !important;
-    margin: 4px 0 8px !important;
+    font-size: 16px !important;
+    margin: 0 0 6px !important;
+    font-weight: 700 !important;
   }
 
-  /* ── Cloud sync panel: collapsed on mobile ──────────────────── */
+  /* ── Cloud sync — compact on mobile ─────────────────────────────────── */
   #cloudSyncPanel {
     padding: 8px 10px !important;
-    margin: 6px 0 !important;
+    margin: 0 0 8px !important;
+    border-radius: 8px !important;
+  }
+
+  #cloudAuth {
+    gap: 6px !important;
+    margin-top: 6px !important;
   }
 
   #cloudAuth input {
     min-width: 0 !important;
     flex: 1 !important;
+    width: 100% !important;
   }
 
-  /* ── Bottom navigation bar ──────────────────────────────────── */
+  /* ── Bottom navigation bar ───────────────────────────────────────────── */
   #appNav {
     position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
+    bottom: 0 !important; left: 0 !important; right: 0 !important; top: auto !important;
     margin: 0 !important;
     padding: 6px 6px env(safe-area-inset-bottom, 6px) !important;
     gap: 4px !important;
@@ -38,11 +56,12 @@
     overflow-y: hidden !important;
     background: #fff !important;
     border-top: 1px solid #e0e0e0 !important;
-    box-shadow: 0 -2px 12px rgba(0,0,0,.10) !important;
-    z-index: 500 !important;
-    scrollbar-width: none !important;
+    box-shadow: 0 -2px 16px rgba(0,0,0,.12) !important;
+    z-index: 1000 !important;
     -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
     justify-content: flex-start !important;
+    align-items: center !important;
   }
 
   #appNav::-webkit-scrollbar { display: none; }
@@ -50,139 +69,261 @@
   #appNav button {
     flex-shrink: 0 !important;
     font-size: 11px !important;
-    padding: 7px 10px !important;
-    border-radius: 10px !important;
+    padding: 7px 11px !important;
+    border-radius: 8px !important;
     white-space: nowrap !important;
-    min-height: 36px !important;
+    min-height: 34px !important;
+    border: 1px solid #ddd !important;
+    background: #f5f5f5 !important;
+    color: #333 !important;
+    font-weight: 500 !important;
   }
 
-  /* Active nav button highlight */
-  #appNav button.nav-active {
+  #appNav button.nav-active,
+  #appNav button:disabled {
     background: #4f46e5 !important;
     color: #fff !important;
+    border-color: #4f46e5 !important;
+    font-weight: 700 !important;
   }
 
-  /* ── General touch targets ──────────────────────────────────── */
-  button {
-    min-height: 38px !important;
-    cursor: pointer !important;
+  /* ── Touch targets ───────────────────────────────────────────────────── */
+  button:not(#appNav button) {
+    min-height: 40px !important;
   }
 
-  input, select, textarea {
-    font-size: 16px !important; /* prevents iOS zoom on focus */
-    min-height: 38px !important;
+  input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important; /* prevents iOS auto-zoom */
+    min-height: 40px !important;
+    width: 100% !important;
   }
 
-  /* ── Recipes page ───────────────────────────────────────────── */
-  #pageRecipes h2 { font-size: 18px !important; margin: 6px 0 !important; }
+  /* ── Storage indicator ───────────────────────────────────────────────── */
+  #storageIndicator { font-size: 11px !important; }
 
-  #recipeGrid {
-    grid-template-columns: 1fr !important;
-  }
+  /* ─────────────────────────────────────────────────────────────────────
+     PAGE: RECETTES
+     ───────────────────────────────────────────────────────────────────── */
+  #pageRecipes h2 { font-size: 17px !important; margin: 4px 0 8px !important; }
 
-  /* ── Recipe creation page ───────────────────────────────────── */
-  #pageCreate h2 { font-size: 18px !important; margin: 6px 0 !important; }
-
-  /* Product addition row → stack vertically */
-  #addProductRow {
+  #pageRecipes > div:first-of-type {
     flex-direction: column !important;
+    gap: 6px !important;
   }
 
-  /* Ingredient list cards */
-  #list > div {
-    padding: 8px !important;
+  #pageRecipes [style*="width:170px"],
+  #pageRecipes [style*="flex:1"] {
+    width: 100% !important;
   }
 
-  /* ── Product library ────────────────────────────────────────── */
-  #pageProducts h2 { font-size: 18px !important; margin: 6px 0 !important; }
-
-  /* Product form grid → scrollable (keep as-is, just ensure the wrapper is visible) */
-  #pageProducts [style*="overflow-x:auto"] {
-    -webkit-overflow-scrolling: touch !important;
+  #pageRecipes [style*="display:flex"][style*="gap:6px"] {
+    flex-wrap: wrap !important;
+    width: 100% !important;
   }
 
-  /* Product cards in library */
-  #productList table {
-    font-size: 12px !important;
+  #pageRecipes [style*="display:flex"][style*="gap:6px"] button {
+    flex: 1 !important;
+    min-width: 80px !important;
   }
 
-  /* Open Food Facts section */
-  #offResults > div {
-    font-size: 13px !important;
+  /* ─────────────────────────────────────────────────────────────────────
+     PAGE: CRÉATION DE RECETTE
+     ───────────────────────────────────────────────────────────────────── */
+  #pageCreate h2 { font-size: 17px !important; margin: 4px 0 8px !important; }
+
+  #createHeaderRow {
+    flex-direction: column !important;
+    gap: 8px !important;
   }
 
-  /* ── Journal page ───────────────────────────────────────────── */
-  #pageJournal h2 { font-size: 18px !important; margin: 6px 0 !important; }
-
-  /* Week grid: single column on mobile */
-  .journal-week-grid {
-    grid-template-columns: 1fr !important;
+  #createHeaderRow > div {
+    width: 100% !important;
+    min-width: 0 !important;
   }
 
-  /* Day detail panel */
-  .journal-day-panel {
-    padding: 10px !important;
-  }
-
-  /* Macro summary cards → 2 columns */
-  .macro-cards {
-    grid-template-columns: 1fr 1fr !important;
-  }
-
-  /* ── Shop page ──────────────────────────────────────────────── */
-  #pageShop h2 { font-size: 18px !important; margin: 6px 0 !important; }
-
-  /* ── Modals & overlays ──────────────────────────────────────── */
-  [style*="position:fixed"][style*="inset:0"],
-  [style*="position: fixed"][style*="inset: 0"] {
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  /* Print card preview: shrink on mobile */
-  #printCardInner {
-    transform-origin: top left !important;
-  }
-
-  /* ── Compare page ───────────────────────────────────────────── */
-  #pageCompare h2 { font-size: 18px !important; }
-  #pageCompare [style*="display:flex"] {
+  #createHeaderRow [style*="display:flex"][style*="gap:8px"] {
     flex-wrap: wrap !important;
   }
 
-  /* ── Storage indicator ──────────────────────────────────────── */
-  #storageIndicator {
-    font-size: 11px !important;
+  #createHeaderRow button {
+    flex: 1 !important;
+    min-width: 100px !important;
   }
 
-  /* ── Global entry nav (top bar) ─────────────────────────────── */
-  #globalEntryNav {
+  /* Ingrédients + Résultat: colonne unique */
+  #createSplit {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Résultat pre: lisible */
+  #totals {
+    font-size: 12px !important;
+    padding: 10px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Aperçu photo recette: pleine largeur */
+  #recipeImagePreview {
+    width: 100% !important;
+    height: 45vw !important;
+    max-height: 220px !important;
+  }
+
+  /* Extras */
+  #pageCreate [style*="border:2px dashed"] {
+    padding: 10px !important;
+  }
+
+  /* Claude panel */
+  #recipeClaudePanel { padding: 10px !important; }
+  #recipeClaudeText { height: 180px !important; }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     PAGE: BIBLIOTHÈQUE DE PRODUITS
+     ───────────────────────────────────────────────────────────────────── */
+  #pageProducts h2 { font-size: 17px !important; margin: 4px 0 8px !important; }
+
+  /* Filtres: colonne unique */
+  #pageProducts > div:nth-of-type(1) {
+    flex-direction: column !important;
+    gap: 6px !important;
+    align-items: stretch !important;
+  }
+
+  #pageProducts > div:nth-of-type(1) > div {
+    width: 100% !important;
+  }
+
+  /* Formulaire produit: grille 2 colonnes */
+  #prodFormScroll {
+    overflow-x: visible !important;
+    padding-bottom: 0 !important;
+  }
+
+  #prodFormGrid {
+    grid-template-columns: 1fr 1fr !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  #prodFormGrid input,
+  #prodFormGrid select {
     font-size: 13px !important;
-    padding: 8px !important;
+    padding: 6px 8px !important;
+    min-height: 38px !important;
+  }
+
+  /* Nom produit: pleine largeur */
+  #prodName { grid-column: 1 / -1 !important; }
+
+  /* Boutons Ajouter/Annuler: pleine largeur */
+  #prodFormGrid > div:last-child {
+    grid-column: 1 / -1 !important;
+    flex-wrap: wrap !important;
+  }
+
+  #prodFormGrid > div:last-child button {
+    flex: 1 !important;
+  }
+
+  /* Image: colonne unique */
+  #prodImageGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Open Food Facts */
+  #pageProducts [style*="border:1px solid #bbdefb"] > div:nth-child(2) {
+    flex-direction: column !important;
+  }
+
+  #pageProducts [style*="border:1px solid #bbdefb"] > div:nth-child(2) input {
+    width: 100% !important;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     PAGE: COMPARER PRODUITS
+     ───────────────────────────────────────────────────────────────────── */
+  #pageCompare h2 { font-size: 17px !important; }
+
+  #pageCompare > div:first-of-type {
+    flex-direction: column !important;
     gap: 6px !important;
   }
+
+  #pageCompare > div:first-of-type > div {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  #compareTableWrap {
+    font-size: 12px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     PAGE: JOURNAL & PLANNING
+     ───────────────────────────────────────────────────────────────────── */
+  #pageJournal h2 { font-size: 17px !important; margin: 4px 0 8px !important; }
+
+  /* Sélecteur semaine */
+  #pageJournal [style*="display:flex"][style*="align-items:center"] {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  /* Grille des jours de la semaine */
+  #pageJournal [style*="display:grid"][style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Cartes de jour */
+  #pageJournal [style*="border:1px solid"][style*="border-radius"] {
+    margin-bottom: 6px !important;
+  }
+
+  /* Tableau bilan semaine */
+  #pageJournal table {
+    font-size: 12px !important;
+    width: 100% !important;
+  }
+
+  #pageJournal td, #pageJournal th {
+    padding: 4px 6px !important;
+  }
+
+  /* Détail d'un jour */
+  #pageJournal [style*="padding:16px"] {
+    padding: 10px !important;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     PAGE: COURSES
+     ───────────────────────────────────────────────────────────────────── */
+  #pageShop h2 { font-size: 17px !important; margin: 4px 0 8px !important; }
+
+  #pageShop [style*="display:flex"][style*="flex-wrap:wrap"] {
+    flex-direction: column !important;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     GLOBAL: Global entry nav (top links)
+     ───────────────────────────────────────────────────────────────────── */
+  #globalEntryNav {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+    gap: 8px !important;
+  }
+
 }
 
-/* ── Very small screens (≤ 390px, iPhone SE etc.) ──────────────────────── */
+/* ── Very small phones (≤ 390px) ──────────────────────────────────────────── */
 @media (max-width: 390px) {
-  #appShell {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-  }
-
-  #appNav button {
-    font-size: 10px !important;
-    padding: 6px 7px !important;
-  }
-}
-
-/* ── iPhone notch / Dynamic Island safe area ────────────────────────────── */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  @media (max-width: 768px) {
-    #appNav {
-      padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
-    }
-    #appShell {
-      padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
-    }
-  }
+  #appShell { padding-left: 8px !important; padding-right: 8px !important; }
+  #appNav button { font-size: 10px !important; padding: 6px 8px !important; }
+  #prodFormGrid { grid-template-columns: 1fr !important; }
+  #prodName { grid-column: auto !important; }
 }

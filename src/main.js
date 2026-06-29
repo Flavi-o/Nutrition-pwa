@@ -92,7 +92,7 @@ root.innerHTML = `
     </div>
 
     <div id="pageCreate" style="display:none;">
-      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:end;">
+      <div id="createHeaderRow" style="display:flex; gap:10px; flex-wrap:wrap; align-items:end;">
         <div style="flex:1; min-width:240px;">
           <label>Nom du repas</label><br/>
           <input id="mealName" style="width:100%;" placeholder="Pâtes pesto" />
@@ -195,7 +195,7 @@ root.innerHTML = `
 
       <hr style="margin:16px 0;" />
 
-      <div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:16px; margin-top:16px;">
+      <div id="createSplit" style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:16px; margin-top:16px;">
         <div>
           <h2>Ingrédients</h2>
           <div id="list"></div>
@@ -259,8 +259,8 @@ root.innerHTML = `
         </div>
       </div>
 
-      <div style="overflow-x:auto; padding-bottom:8px; scrollbar-gutter: stable;">
-        <div style="display:grid; gap:10px; grid-template-columns: 1.2fr 140px 90px 80px repeat(10, 110px) 220px; align-items:end; min-width:max-content;">
+      <div id="prodFormScroll" style="overflow-x:auto; padding-bottom:8px; scrollbar-gutter: stable;">
+        <div id="prodFormGrid" style="display:grid; gap:10px; grid-template-columns: 1.2fr 140px 90px 80px repeat(10, 110px) 220px; align-items:end; min-width:max-content;">
           <input id="prodName" placeholder="Nom produit (ex: lardons)" />
           <input id="prodCategory" placeholder="Catégorie (ex: viande)" />
 
@@ -287,7 +287,7 @@ root.innerHTML = `
           </div>
         </div>
       </div>
-      <div style="display:grid; gap:10px; grid-template-columns: 1.2fr 1fr 180px; margin-top:8px; align-items:end;">
+      <div id="prodImageGrid" style="display:grid; gap:10px; grid-template-columns: 1.2fr 1fr 180px; margin-top:8px; align-items:end;">
         <div>
           <label>Image (URL)</label><br/>
           <input id="prodImageUrl" style="width:100%;" placeholder="https://..." />

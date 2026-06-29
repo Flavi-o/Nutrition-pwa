@@ -1403,20 +1403,18 @@ async function offSearchByBarcode(barcode) {
   if (div) div.innerHTML = `<p style='opacity:.7'>Code détecté : <strong>${barcode}</strong> — recherche en cours…</p>`;
   const fields = "product_name,product_name_fr,nutriments,image_front_small_url,image_small_url,categories_tags";
   try {
-    let data;
-    try {
-      data = await _offFetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=${fields}`);
-    } catch {
-      // Fallback to v0 endpoint
-      data = await _offFetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-    }
-    if (data.status === 1 && data.product) {
-      renderOFFResults([data.product]);
+    // Use same search endpoint as name search (avoids CORS issues with /api/v2/)
+    const data = await _offFetch(
+      `https://world.openfoodfacts.org/cgi/search.pl?code=${encodeURIComponent(barcode)}&json=true&page_size=1&action=process&fields=${fields}`
+    );
+    const products = data.products || [];
+    if (products.length > 0) {
+      renderOFFResults(products);
     } else {
       if (div) div.innerHTML = `<p style='opacity:.7'>Produit (${barcode}) non trouvé dans Open Food Facts.</p>`;
     }
   } catch (err) {
-    if (div) div.innerHTML = `<p style='color:orange;'>Code scanné : <strong>${barcode}</strong><br>Impossible de contacter Open Food Facts (${err.message}).<br>Essaie de coller le code manuellement dans le champ de recherche ci-dessus.</p>`;
+    if (div) div.innerHTML = `<p style='color:orange;'>Code scanné : <strong>${barcode}</strong><br>Clique sur "Rechercher" pour réessayer, ou vérifie ta connexion (${err.message}).</p>`;
   } finally {
     _offSearching = false;
   }

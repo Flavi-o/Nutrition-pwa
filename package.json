@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
+    "@zxing/browser": "^0.2.0",
+    "@zxing/library": "^0.22.0",
     "better-sqlite3": "^11.10.0",
     "dotenv": "^16.4.7",
     "express": "^4.19.2",

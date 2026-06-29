@@ -1331,6 +1331,7 @@ function showUndoToast() {
 let _offResults = [];
 let _offScanStream = null;
 let _offScanInterval = null;
+let _offZxingReader = null;
 
 function _offGet(nutriments, key) {
   const v = nutriments?.[key + "_100g"];
@@ -1436,33 +1437,46 @@ async function offStartScanner() {
   const status = $("#offScanStatus");
   if (!modal || !video) return;
 
-  if (!("BarcodeDetector" in window)) {
-    alert("Le scanner de code-barres n'est pas supporté par ce navigateur.\nEssaie Chrome sur Android ou Safari 17+ sur iPhone.\n\nTu peux aussi saisir le code-barres dans le champ de recherche.");
-    return;
-  }
-
   modal.style.display = "flex";
   status.textContent = "Démarrage de la caméra…";
 
   try {
-    _offScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-    video.srcObject = _offScanStream;
-    await video.play();
-
-    const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
-    status.textContent = "Pointez vers un code-barres produit…";
-
-    _offScanInterval = setInterval(async () => {
-      if (video.readyState < 2) return;
-      try {
-        const codes = await detector.detect(video);
-        if (codes.length > 0) {
+    if ("BarcodeDetector" in window) {
+      // Native API (Chrome, Safari 17+)
+      _offScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      video.srcObject = _offScanStream;
+      await video.play();
+      const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
+      status.textContent = "Pointez vers un code-barres…";
+      _offScanInterval = setInterval(async () => {
+        if (video.readyState < 2) return;
+        try {
+          const codes = await detector.detect(video);
+          if (codes.length > 0) {
+            offStopScanner();
+            await offSearchByBarcode(codes[0].rawValue);
+            $("#offResults")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        } catch { /* ignore frame errors */ }
+      }, 300);
+    } else {
+      // Fallback ZXing (Safari < 17, Firefox…)
+      const { BrowserMultiFormatReader } = await import("@zxing/browser");
+      const reader = new BrowserMultiFormatReader();
+      _offZxingReader = reader;
+      _offScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      video.srcObject = _offScanStream;
+      await video.play();
+      status.textContent = "Pointez vers un code-barres…";
+      reader.decodeFromStream(_offScanStream, video, (result, err) => {
+        if (result) {
           offStopScanner();
-          await offSearchByBarcode(codes[0].rawValue);
-          if ($("#offResults")) $("#offResults").scrollIntoView({ behavior: "smooth", block: "start" });
+          offSearchByBarcode(result.getText()).then(() => {
+            $("#offResults")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
         }
-      } catch { /* ignore frame errors */ }
-    }, 300);
+      });
+    }
   } catch (err) {
     status.textContent = "Impossible d'accéder à la caméra : " + err.message;
   }
@@ -1470,6 +1484,7 @@ async function offStartScanner() {
 
 function offStopScanner() {
   if (_offScanInterval) { clearInterval(_offScanInterval); _offScanInterval = null; }
+  if (_offZxingReader)  { try { _offZxingReader.reset(); } catch {} _offZxingReader = null; }
   if (_offScanStream)   { _offScanStream.getTracks().forEach(t => t.stop()); _offScanStream = null; }
   const modal = $("#offScanModal");
   if (modal) modal.style.display = "none";

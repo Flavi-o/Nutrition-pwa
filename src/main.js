@@ -1333,6 +1333,7 @@ let _offScanStream = null;
 let _offScanInterval = null;
 let _offZxingReader = null;
 let _offSearching = false;
+let _offScanDone = false;
 
 function _offGet(nutriments, key) {
   const v = nutriments?.[key + "_100g"];
@@ -1458,6 +1459,7 @@ async function offStartScanner() {
   const status = $("#offScanStatus");
   if (!modal || !video) return;
 
+  _offScanDone = false;
   modal.style.display = "flex";
   status.textContent = "Démarrage de la caméra…";
 
@@ -1470,10 +1472,11 @@ async function offStartScanner() {
       const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
       status.textContent = "Pointez vers un code-barres…";
       _offScanInterval = setInterval(async () => {
-        if (video.readyState < 2 || _offSearching) return;
+        if (video.readyState < 2 || _offScanDone) return;
         try {
           const codes = await detector.detect(video);
           if (codes.length > 0) {
+            _offScanDone = true;
             const code = codes[0].rawValue;
             offStopScanner();
             const searchEl = $("#offSearch");
@@ -1493,7 +1496,8 @@ async function offStartScanner() {
       await video.play();
       status.textContent = "Pointez vers un code-barres…";
       reader.decodeFromStream(_offScanStream, video, (result) => {
-        if (result && !_offSearching) {
+        if (result && !_offScanDone) {
+          _offScanDone = true;
           const code = result.getText();
           offStopScanner();
           const searchEl = $("#offSearch");

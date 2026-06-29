@@ -29,25 +29,6 @@ root.innerHTML = `
   <div id="appShell" style="font-family:system-ui; padding:16px; max-width:1100px; margin:0 auto;">
     <h1>Nutrition Recettes</h1>
 
-    <div id="cloudSyncPanel" style="border:1px solid #e5e5e5; border-radius:12px; padding:12px; margin:12px 0; background:#fafafa;">
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <strong>Sync cloud</strong>
-        <span id="cloudStatus" style="font-size:12px; opacity:.7;"></span>
-      </div>
-      <div id="cloudAuth" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
-        <input id="cloudEmail" type="email" placeholder="Email" style="min-width:220px;" />
-        <input id="cloudPassword" type="password" placeholder="Mot de passe" style="min-width:160px;" />
-        <button id="cloudSignUp">Créer un compte</button>
-        <button id="cloudSignIn">Se connecter</button>
-      </div>
-      <div id="cloudSignedIn" style="display:none; gap:8px; flex-wrap:wrap; align-items:center; margin-top:8px;">
-        <span id="cloudUserEmail" style="font-size:13px;"></span>
-        <button id="cloudPull">Récupérer cloud</button>
-        <button id="cloudPush">Envoyer cloud</button>
-        <button id="cloudSignOut">Se déconnecter</button>
-      </div>
-      <div id="cloudHelp" style="font-size:12px; opacity:.6; margin-top:6px;"></div>
-    </div>
 
     <div id="appNav" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
       <button id="navRecipes">Mes recettes</button>
@@ -59,6 +40,35 @@ root.innerHTML = `
       <button id="navRappel">Rappel</button>
       <button id="navTrash">Poubelle</button>
       <button id="navImport">Importer recette</button>
+      <button id="navCloud" style="background:#0ea5e9; color:#fff; border:none; border-radius:8px; padding:7px 12px; font-weight:700; cursor:pointer;">☁️ Sync</button>
+    </div>
+
+    <div id="cloudModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:2000; align-items:center; justify-content:center; padding:16px;">
+      <div style="background:#fff; border-radius:16px; padding:24px; width:100%; max-width:400px; box-shadow:0 8px 32px rgba(0,0,0,.2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <strong style="font-size:17px;">☁️ Synchronisation cloud</strong>
+          <button id="cloudModalClose" style="background:none; border:none; font-size:22px; cursor:pointer; padding:0 4px;">✕</button>
+        </div>
+        <div id="cloudStatus" style="font-size:13px; color:#555; margin-bottom:12px;"></div>
+
+        <div id="cloudAuth" style="display:flex; flex-direction:column;">
+          <input id="cloudEmail" type="email" placeholder="Email" style="width:100%; margin-bottom:8px; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:15px;" />
+          <input id="cloudPassword" type="password" placeholder="Mot de passe" style="width:100%; margin-bottom:12px; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:15px;" />
+          <div style="display:flex; gap:8px;">
+            <button id="cloudSignIn" style="flex:1; background:#4f46e5; color:#fff; border:none; border-radius:8px; padding:10px; font-size:15px; font-weight:600; cursor:pointer;">Se connecter</button>
+            <button id="cloudSignUp" style="flex:1; background:#e5e7eb; color:#111; border:none; border-radius:8px; padding:10px; font-size:15px; cursor:pointer;">Créer compte</button>
+          </div>
+        </div>
+
+        <div id="cloudSignedIn" style="display:none; flex-direction:column; gap:8px;">
+          <div id="cloudUserEmail" style="font-size:13px; color:#555;"></div>
+          <button id="cloudPush" style="background:#4f46e5; color:#fff; border:none; border-radius:8px; padding:12px; font-size:15px; font-weight:600; cursor:pointer;">⬆️ Envoyer mes données vers le cloud</button>
+          <button id="cloudPull" style="background:#0ea5e9; color:#fff; border:none; border-radius:8px; padding:12px; font-size:15px; font-weight:600; cursor:pointer;">⬇️ Récupérer les données du cloud</button>
+          <button id="cloudSignOut" style="background:#f3f4f6; color:#111; border:none; border-radius:8px; padding:10px; font-size:14px; cursor:pointer;">Se déconnecter</button>
+        </div>
+
+        <div id="cloudHelp" style="font-size:12px; color:#888; margin-top:12px;"></div>
+      </div>
     </div>
 
     <div id="pageRecipes">
@@ -7047,6 +7057,18 @@ $("#importFile").addEventListener("change", async (e) => {
   }
   e.target.value = "";
 });
+function openCloudModal() {
+  const m = $("#cloudModal");
+  if (m) { m.style.display = "flex"; updateCloudUI(); }
+}
+function closeCloudModal() {
+  const m = $("#cloudModal");
+  if (m) m.style.display = "none";
+}
+$("#navCloud")?.addEventListener("click", openCloudModal);
+$("#cloudModalClose")?.addEventListener("click", closeCloudModal);
+$("#cloudModal")?.addEventListener("click", (e) => { if (e.target === e.currentTarget) closeCloudModal(); });
+
 $("#cloudSignUp")?.addEventListener("click", async () => {
   if (!supabase) return alert("Sync cloud non configurée.");
   const email = $("#cloudEmail")?.value.trim();

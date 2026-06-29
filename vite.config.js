@@ -17,7 +17,7 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       includeAssets: ["icon-192.png", "icon-512.png", "repere-nutrition.png"],
       manifest: {
         name: "Nutrition Recettes",

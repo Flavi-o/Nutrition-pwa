@@ -50,6 +50,10 @@ export default defineConfig({
             handler: "NetworkFirst",
             options: { cacheName: "supabase-cache" },
           },
+          {
+            urlPattern: /^https:\/\/.*\.openfoodfacts\.org\/.*/i,
+            handler: "NetworkOnly",
+          },
         ],
       },
     }),

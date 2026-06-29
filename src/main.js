@@ -5520,7 +5520,7 @@ async function loadFreeDays() {
   state.freeDays = (data && typeof data === "object" && !Array.isArray(data)) ? data : {};
 }
 
-const GOALS_JOURNALIER = { kcal:[1700,1820], prot:[145,155], carb:[195,210], fat:[38,45], fiber:[25,35], salt:[null,5] };
+const GOALS_JOURNALIER = { kcal:[1700,2300], prot:[145,155], carb:[195,210], fat:[38,45], fiber:[25,35], salt:[null,5] };
 const GOALS_FREE       = { kcal:[3400,3800], prot:[145,155], carb:[490,515], fat:[105,120], fiber:[25,35], salt:[null,8] };
 
 const MEAL_TYPES = [

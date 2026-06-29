@@ -1,4 +1,5 @@
 import "./style.css";
+import "./mobile.css";
 import { createClient } from "@supabase/supabase-js";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -5404,6 +5405,7 @@ function updateNav() {
     const active = state.page === page;
     btn.disabled = active;
     btn.style.fontWeight = active ? "700" : "400";
+    btn.classList.toggle("nav-active", active);
   });
 }
 

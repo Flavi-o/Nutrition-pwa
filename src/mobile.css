@@ -1,0 +1,188 @@
+/* ── Mobile optimizations (≤ 768px) ─────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* ── Shell & layout ─────────────────────────────────────────── */
+  #appShell {
+    padding: 10px 12px 80px !important; /* bottom padding = nav bar height */
+    max-width: 100% !important;
+  }
+
+  #appShell > h1 {
+    font-size: 17px !important;
+    margin: 4px 0 8px !important;
+  }
+
+  /* ── Cloud sync panel: collapsed on mobile ──────────────────── */
+  #cloudSyncPanel {
+    padding: 8px 10px !important;
+    margin: 6px 0 !important;
+  }
+
+  #cloudAuth input {
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+
+  /* ── Bottom navigation bar ──────────────────────────────────── */
+  #appNav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    margin: 0 !important;
+    padding: 6px 6px env(safe-area-inset-bottom, 6px) !important;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    background: #fff !important;
+    border-top: 1px solid #e0e0e0 !important;
+    box-shadow: 0 -2px 12px rgba(0,0,0,.10) !important;
+    z-index: 500 !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    justify-content: flex-start !important;
+  }
+
+  #appNav::-webkit-scrollbar { display: none; }
+
+  #appNav button {
+    flex-shrink: 0 !important;
+    font-size: 11px !important;
+    padding: 7px 10px !important;
+    border-radius: 10px !important;
+    white-space: nowrap !important;
+    min-height: 36px !important;
+  }
+
+  /* Active nav button highlight */
+  #appNav button.nav-active {
+    background: #4f46e5 !important;
+    color: #fff !important;
+  }
+
+  /* ── General touch targets ──────────────────────────────────── */
+  button {
+    min-height: 38px !important;
+    cursor: pointer !important;
+  }
+
+  input, select, textarea {
+    font-size: 16px !important; /* prevents iOS zoom on focus */
+    min-height: 38px !important;
+  }
+
+  /* ── Recipes page ───────────────────────────────────────────── */
+  #pageRecipes h2 { font-size: 18px !important; margin: 6px 0 !important; }
+
+  #recipeGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Recipe creation page ───────────────────────────────────── */
+  #pageCreate h2 { font-size: 18px !important; margin: 6px 0 !important; }
+
+  /* Product addition row → stack vertically */
+  #addProductRow {
+    flex-direction: column !important;
+  }
+
+  /* Ingredient list cards */
+  #list > div {
+    padding: 8px !important;
+  }
+
+  /* ── Product library ────────────────────────────────────────── */
+  #pageProducts h2 { font-size: 18px !important; margin: 6px 0 !important; }
+
+  /* Product form grid → scrollable (keep as-is, just ensure the wrapper is visible) */
+  #pageProducts [style*="overflow-x:auto"] {
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Product cards in library */
+  #productList table {
+    font-size: 12px !important;
+  }
+
+  /* Open Food Facts section */
+  #offResults > div {
+    font-size: 13px !important;
+  }
+
+  /* ── Journal page ───────────────────────────────────────────── */
+  #pageJournal h2 { font-size: 18px !important; margin: 6px 0 !important; }
+
+  /* Week grid: single column on mobile */
+  .journal-week-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Day detail panel */
+  .journal-day-panel {
+    padding: 10px !important;
+  }
+
+  /* Macro summary cards → 2 columns */
+  .macro-cards {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* ── Shop page ──────────────────────────────────────────────── */
+  #pageShop h2 { font-size: 18px !important; margin: 6px 0 !important; }
+
+  /* ── Modals & overlays ──────────────────────────────────────── */
+  [style*="position:fixed"][style*="inset:0"],
+  [style*="position: fixed"][style*="inset: 0"] {
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Print card preview: shrink on mobile */
+  #printCardInner {
+    transform-origin: top left !important;
+  }
+
+  /* ── Compare page ───────────────────────────────────────────── */
+  #pageCompare h2 { font-size: 18px !important; }
+  #pageCompare [style*="display:flex"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* ── Storage indicator ──────────────────────────────────────── */
+  #storageIndicator {
+    font-size: 11px !important;
+  }
+
+  /* ── Global entry nav (top bar) ─────────────────────────────── */
+  #globalEntryNav {
+    font-size: 13px !important;
+    padding: 8px !important;
+    gap: 6px !important;
+  }
+}
+
+/* ── Very small screens (≤ 390px, iPhone SE etc.) ──────────────────────── */
+@media (max-width: 390px) {
+  #appShell {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  #appNav button {
+    font-size: 10px !important;
+    padding: 6px 7px !important;
+  }
+}
+
+/* ── iPhone notch / Dynamic Island safe area ────────────────────────────── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    #appNav {
+      padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
+    }
+    #appShell {
+      padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    }
+  }
+}

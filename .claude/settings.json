@@ -12,7 +12,23 @@
       "Bash(git commit -m ' *)",
       "Bash(VITE_BASE=/Nutrition-pwa/ npm run build)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(npx serve *)",
+      "Bash(curl -s http://localhost:5001/Nutrition-pwa/)",
+      "Bash(kill %1)",
+      "Bash(curl -s \"https://flavi-o.github.io/Nutrition-pwa/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://flavi-o.github.io/Nutrition-pwa/assets/main-B532fg7v.js\")",
+      "Bash(grep -n \"function \\\\$\\\\|const \\\\$ \" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(grep -n \"^const \\\\$\\\\|^function \\\\$\\\\|^let \\\\$\\\\|^\\\\$ \" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(grep -n \"const \\\\$ = \\\\|function \\\\$ \" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(grep -n \"^\\\\$\\\\|= document.querySelector\\\\|querySelector\" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(grep -n \"const \\\\$ \" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(grep -n \"window\\\\.\\\\$\\\\|global\\\\.\\\\$\" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(grep -n \"^\\\\$.= \\\\|^\\\\$ =\" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(grep -n \"\\\\b\\\\$ =\" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(grep -n \"\\\\$\")",
+      "Bash(grep -n \"^const \\\\$\" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://flavi-o.github.io/Nutrition-pwa/assets/main-BWQRLLjh.css\")"
     ]
   }
 }

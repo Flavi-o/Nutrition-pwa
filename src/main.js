@@ -7398,8 +7398,13 @@ $("#compareCategory").addEventListener("change", (e) => {
 $("#compareClear").addEventListener("click", () => {
   clearCompareSelection();
 });
-$("#offSearchBtn").addEventListener("click", () => offSearchByName($("#offSearch").value));
-$("#offSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") offSearchByName(e.target.value); });
+function offSearchAuto() {
+  const val = $("#offSearch")?.value.trim() || "";
+  if (/^\d{6,14}$/.test(val)) offSearchByBarcode(val);
+  else offSearchByName(val);
+}
+$("#offSearchBtn").addEventListener("click", offSearchAuto);
+$("#offSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") offSearchAuto(); });
 $("#offScanInput").addEventListener("change", (e) => {
   const file = e.target.files?.[0];
   if (file) { offDecodePhoto(file); e.target.value = ""; }

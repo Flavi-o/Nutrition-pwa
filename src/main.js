@@ -299,6 +299,16 @@ root.innerHTML = `
           Aperçu image
         </div>
       </div>
+      <div style="margin:14px 0; border:1px solid #bbdefb; border-radius:10px; padding:12px; background:#e3f2fd;">
+        <div style="font-weight:600; margin-bottom:8px;">🔍 Importer depuis Open Food Facts</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input id="offSearch" placeholder="Nom du produit (ex: yaourt grec)…" style="flex:1; min-width:180px;" />
+          <button id="offSearchBtn">Rechercher</button>
+          <button id="offScanBtn">📷 Scanner code-barres</button>
+        </div>
+        <div id="offResults" style="margin-top:8px;"></div>
+      </div>
+
       <div id="productList" style="margin-top:8px;"></div>
       <div style="font-size:12px; opacity:.7; margin-top:4px;">
         Clique sur un produit pour l’ajouter à la recette.
@@ -469,6 +479,12 @@ root.innerHTML = `
 
       </div>
     </div>
+  </div>
+
+  <div id="offScanModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:2000; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
+    <p style="color:#fff; font-size:14px; margin:0;" id="offScanStatus">Démarrage de la caméra…</p>
+    <video id="offScanVideo" style="max-width:360px; width:90%; border-radius:12px;" autoplay playsinline muted></video>
+    <button id="offScanClose" style="background:#fff; color:#111; border:none; border-radius:8px; padding:10px 28px; font-size:15px; cursor:pointer;">Fermer</button>
   </div>
 `;
 
@@ -1309,6 +1325,157 @@ function showUndoToast() {
   clearTimeout(toast._t);
   toast._t = setTimeout(() => { toast.style.opacity = "0"; }, 1800);
 }
+
+// ── Open Food Facts ─────────────────────────────────────────────────────────
+
+let _offResults = [];
+let _offScanStream = null;
+let _offScanInterval = null;
+
+function _offGet(nutriments, key) {
+  const v = nutriments?.[key + "_100g"];
+  return v !== undefined && v !== null ? v : null;
+}
+
+function _offFill(id, val) {
+  const el = document.getElementById(id);
+  if (el && val !== null && val !== undefined) el.value = typeof val === "number" ? parseFloat(val.toFixed(2)) : val;
+}
+
+function renderOFFResults(products) {
+  _offResults = products;
+  const div = $("#offResults");
+  if (!div) return;
+  if (!products.length) { div.innerHTML = "<p style='opacity:.7'>Aucun produit trouvé.</p>"; return; }
+  div.innerHTML = products.map((p, i) => {
+    const n = p.nutriments || {};
+    const kcal = _offGet(n, "energy-kcal") ?? (_offGet(n, "energy") ? Math.round(_offGet(n, "energy") / 4.184) : "?");
+    const prot = _offGet(n, "proteins");
+    const carb = _offGet(n, "carbohydrates");
+    const fat  = _offGet(n, "fat");
+    const name = p.product_name || p.product_name_fr || "Produit sans nom";
+    const img  = p.image_front_small_url || p.image_small_url || "";
+    const fmt  = (v) => v !== null ? parseFloat(v.toFixed(1)) : "?";
+    return `<div style="display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #ddd;border-radius:8px;margin-bottom:6px;background:#fff;">
+      ${img ? `<img src="${img}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none'" />` : `<div style="width:48px;height:48px;border-radius:6px;background:#eee;flex-shrink:0;"></div>`}
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
+        <div style="font-size:12px;opacity:.7;">100g : ${kcal} kcal | P ${fmt(prot)}g | G ${fmt(carb)}g | L ${fmt(fat)}g</div>
+      </div>
+      <button onclick="offImport(${i})" style="flex-shrink:0;background:#1976d2;color:#fff;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px;">Importer</button>
+    </div>`;
+  }).join("");
+}
+
+async function offSearchByName(query) {
+  const div = $("#offResults");
+  if (!div || !query.trim()) return;
+  div.innerHTML = "<p style='opacity:.7'>Recherche en cours…</p>";
+  try {
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=true&page_size=8&search_simple=1&action=process&lc=fr&fields=product_name,product_name_fr,nutriments,image_front_small_url,image_small_url,categories_tags`;
+    const res = await fetch(url);
+    const data = await res.json();
+    renderOFFResults(data.products || []);
+  } catch {
+    div.innerHTML = "<p style='color:red;'>Erreur de connexion à Open Food Facts.</p>";
+  }
+}
+
+async function offSearchByBarcode(barcode) {
+  const div = $("#offResults");
+  if (div) div.innerHTML = "<p style='opacity:.7'>Produit trouvé, chargement…</p>";
+  try {
+    const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,product_name_fr,nutriments,image_front_small_url,image_small_url,categories_tags`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.status === 1 && data.product) {
+      renderOFFResults([data.product]);
+    } else {
+      if (div) div.innerHTML = "<p style='opacity:.7'>Produit non trouvé dans Open Food Facts.</p>";
+    }
+  } catch {
+    if (div) div.innerHTML = "<p style='color:red;'>Erreur de connexion.</p>";
+  }
+}
+
+window.offImport = function(index) {
+  const p = _offResults[index];
+  if (!p) return;
+  const n = p.nutriments || {};
+  const kcalRaw = _offGet(n, "energy-kcal");
+  const kjRaw   = _offGet(n, "energy");
+  const kcal = kcalRaw ?? (kjRaw ? kjRaw / 4.184 : null);
+  const kj   = kjRaw   ?? (kcalRaw ? kcalRaw * 4.184 : null);
+  const name = p.product_name || p.product_name_fr || "";
+  _offFill("prodName",  name);
+  _offFill("prodKcal",  kcal);
+  _offFill("prodKj",    kj);
+  _offFill("prodFat",   _offGet(n, "fat"));
+  _offFill("prodSat",   _offGet(n, "saturated-fat"));
+  _offFill("prodCarb",  _offGet(n, "carbohydrates"));
+  _offFill("prodSugar", _offGet(n, "sugars"));
+  _offFill("prodFiber", _offGet(n, "fiber"));
+  _offFill("prodProt",  _offGet(n, "proteins"));
+  _offFill("prodSalt",  _offGet(n, "salt"));
+  _offFill("prodBaseQty", 100);
+  const imgSrc = p.image_front_small_url || p.image_small_url || "";
+  _offFill("prodImageUrl", imgSrc);
+  setProductImagePreview(imgSrc);
+  if (p.categories_tags?.length) {
+    const cat = p.categories_tags[0].replace(/^(fr|en):/, "").replace(/-/g, " ");
+    _offFill("prodCategory", cat);
+  }
+  $("#offResults").innerHTML = `<p style="color:#1976d2;font-weight:600;">✓ Formulaire rempli avec « ${name} ». Vérifie les valeurs et clique sur Ajouter produit.</p>`;
+  $("#prodName").scrollIntoView({ behavior: "smooth", block: "center" });
+  $("#prodName").focus();
+};
+
+async function offStartScanner() {
+  const modal = $("#offScanModal");
+  const video = $("#offScanVideo");
+  const status = $("#offScanStatus");
+  if (!modal || !video) return;
+
+  if (!("BarcodeDetector" in window)) {
+    alert("Le scanner de code-barres n'est pas supporté par ce navigateur.\nEssaie Chrome sur Android ou Safari 17+ sur iPhone.\n\nTu peux aussi saisir le code-barres dans le champ de recherche.");
+    return;
+  }
+
+  modal.style.display = "flex";
+  status.textContent = "Démarrage de la caméra…";
+
+  try {
+    _offScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    video.srcObject = _offScanStream;
+    await video.play();
+
+    const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
+    status.textContent = "Pointez vers un code-barres produit…";
+
+    _offScanInterval = setInterval(async () => {
+      if (video.readyState < 2) return;
+      try {
+        const codes = await detector.detect(video);
+        if (codes.length > 0) {
+          offStopScanner();
+          await offSearchByBarcode(codes[0].rawValue);
+          if ($("#offResults")) $("#offResults").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      } catch { /* ignore frame errors */ }
+    }, 300);
+  } catch (err) {
+    status.textContent = "Impossible d'accéder à la caméra : " + err.message;
+  }
+}
+
+function offStopScanner() {
+  if (_offScanInterval) { clearInterval(_offScanInterval); _offScanInterval = null; }
+  if (_offScanStream)   { _offScanStream.getTracks().forEach(t => t.stop()); _offScanStream = null; }
+  const modal = $("#offScanModal");
+  if (modal) modal.style.display = "none";
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 
 const state = {
   name: "",
@@ -7224,6 +7391,10 @@ $("#compareCategory").addEventListener("change", (e) => {
 $("#compareClear").addEventListener("click", () => {
   clearCompareSelection();
 });
+$("#offSearchBtn").addEventListener("click", () => offSearchByName($("#offSearch").value));
+$("#offSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") offSearchByName(e.target.value); });
+$("#offScanBtn").addEventListener("click", offStartScanner);
+$("#offScanClose").addEventListener("click", offStopScanner);
 $("#prodImageUrl").addEventListener("input", (e) => {
   setProductImagePreview(e.target.value.trim());
 });

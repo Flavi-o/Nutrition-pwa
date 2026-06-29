@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nutrition Recettes</title>
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Nutrition" />
+    <link rel="apple-touch-icon" href="/icon-512.png" />
+    <style>
+      #globalEntryNav {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-bottom: 1px solid #e2e2e2;
+        background: #f8f8f8;
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+      }
+
+      #globalEntryNav a {
+        color: #111;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      #globalEntryNav a:hover {
+        text-decoration: underline;
+      }
+
+      @media print {
+        #globalEntryNav {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body spellcheck="false">
+    <div id="app"></div>
+    <script>
+      if (window.location.pathname === "/recipe-optimizer") {
+        window.location.replace("/recipe-optimizer/");
+      }
+    </script>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

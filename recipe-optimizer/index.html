@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Optimizer</title>
+    <link rel="stylesheet" href="/recipe-optimizer/style.css" />
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a id="homeLink" class="home-link" href="/#recipes">Nutrition Recettes</a>
+      <span class="pill">MVP Recipe Optimizer</span>
+    </header>
+
+    <main class="layout">
+      <section class="card card-input" id="inputCard">
+        <h1>Recipe Optimizer</h1>
+        <p class="lead">
+          Analyse une recette brute, restructure-la, puis optimise-la en mode
+          <strong>Equilibre</strong> ou <strong>Seche</strong>.
+        </p>
+
+        <label for="recipeFile">Image ou PDF de la recette (optionnel)</label>
+        <input id="recipeFile" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" />
+        <p id="fileStatus" class="status" aria-live="polite"></p>
+
+        <label for="igUrl">Lien source (optionnel)</label>
+        <input id="igUrl" type="url" placeholder="https://www.instagram.com/..." />
+
+        <label for="recipeText">Texte recette (caption/notes)</label>
+        <textarea
+          id="recipeText"
+          rows="8"
+          placeholder="Colle ici la recette brute..."
+        ></textarea>
+
+        <label for="freeText">Texte libre (contexte optionnel)</label>
+        <textarea
+          id="freeText"
+          rows="5"
+          placeholder="Ex: je veux une version moins sucree qui garde la texture."
+        ></textarea>
+
+        <button id="analyzeBtn" class="btn btn-primary" type="button">Analyser</button>
+        <button id="adaptBtn" class="btn btn-secondary" type="button" disabled>
+          Adapter avec mes ingredients
+        </button>
+        <p id="analyzeStatus" class="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card" id="originalCard">
+        <h2>Recette originale normalisee</h2>
+        <div id="originalRecipe" class="empty-state">
+          Aucune recette analysee pour le moment.
+        </div>
+
+        <div id="dishTypeGate" class="gate hidden">
+          <h3>Confirmation type de plat</h3>
+          <p>
+            La detection est ambigue. Confirme le type pour fiabiliser l'optimisation.
+          </p>
+          <div class="gate-options">
+            <label><input type="radio" name="dishTypeOverride" value="dessert" /> Dessert</label>
+            <label><input type="radio" name="dishTypeOverride" value="savory" /> Sale</label>
+            <label><input type="radio" name="dishTypeOverride" value="snack" /> Snack</label>
+          </div>
+        </div>
+
+        <div class="mode-row">
+          <span class="mode-label">Mode d'optimisation</span>
+          <div class="mode-switch" id="modeSwitch">
+            <button class="mode-btn active" data-mode="equilibre" type="button">Equilibre</button>
+            <button class="mode-btn" data-mode="seche" type="button">Seche</button>
+          </div>
+        </div>
+
+        <button id="optimizeBtn" class="btn btn-secondary" type="button" disabled>
+          Optimiser
+        </button>
+        <p id="optimizeStatus" class="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card" id="optimizedCard">
+        <div class="section-head">
+          <h2>Recette optimisee</h2>
+          <button id="printBtn" class="btn btn-ghost" type="button" disabled>Exporter PDF</button>
+        </div>
+
+        <div id="optimizedRecipe" class="empty-state">
+          Aucune optimisation executee pour le moment.
+        </div>
+
+        <div id="macroWrap" class="hidden">
+          <h3>Macros estimees / portion</h3>
+          <div id="macrosPerServing" class="macro-grid"></div>
+        </div>
+
+        <div id="changesWrap" class="hidden">
+          <h3>Changements (from -> to + raison)</h3>
+          <ul id="changesList" class="changes-list"></ul>
+        </div>
+      </section>
+
+      <section class="card" id="historyCard">
+        <div class="section-head">
+          <h2>Historique local (SQLite)</h2>
+          <button id="refreshHistoryBtn" class="btn btn-ghost" type="button">Actualiser</button>
+        </div>
+
+        <ul id="historyList" class="history-list"></ul>
+      </section>
+    </main>
+
+    <script type="module" src="/recipe-optimizer/main.js"></script>
+  </body>
+</html>

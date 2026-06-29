@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "Bash(npm install:*)",
+      "Bash(python3 -:*)",
+      "Bash(node --input-type=module)",
+      "Bash(sips -z 192 192 /Users/flavio/nutrition-pwa/public/repere-nutrition.png --out /Users/flavio/nutrition-pwa/public/icon-192.png)",
+      "Bash(sips -z 512 512 /Users/flavio/nutrition-pwa/public/repere-nutrition.png --out /Users/flavio/nutrition-pwa/public/icon-512.png)"
+    ]
+  }
+}

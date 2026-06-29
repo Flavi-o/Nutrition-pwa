@@ -28,7 +28,14 @@
       "Bash(grep -n \"\\\\b\\\\$ =\" /Users/flavio/nutrition-pwa/src/main.js)",
       "Bash(grep -n \"\\\\$\")",
       "Bash(grep -n \"^const \\\\$\" /Users/flavio/nutrition-pwa/src/main.js)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://flavi-o.github.io/Nutrition-pwa/assets/main-BWQRLLjh.css\")"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://flavi-o.github.io/Nutrition-pwa/assets/main-BWQRLLjh.css\")",
+      "Bash(grep -n \"root\\\\.innerHTML\\\\|^  \\\\`;\" /Users/flavio/nutrition-pwa/src/main.js)",
+      "Bash(npm list *)",
+      "Bash(curl -s \"https://world.openfoodfacts.org/api/v2/product/3017620422003?fields=product_name,nutriments\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('status'\\), d.get\\('product',{}\\).get\\('product_name',''\\)\\)\")",
+      "Bash(curl -sv \"https://world.openfoodfacts.org/api/v2/product/3017620422003?fields=product_name\")",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\" \"https://world.openfoodfacts.org/api/v2/product/3017620422003?fields=product_name\")",
+      "Bash(curl -s -I \"https://world.openfoodfacts.org/api/v2/product/3017620422003?fields=product_name\")"
     ]
   }
 }

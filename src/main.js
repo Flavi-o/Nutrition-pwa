@@ -304,7 +304,10 @@ root.innerHTML = `
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <input id="offSearch" placeholder="Nom du produit (ex: yaourt grec)…" style="flex:1; min-width:180px;" />
           <button id="offSearchBtn">Rechercher</button>
-          <button id="offScanBtn">📷 Scanner code-barres</button>
+          <label id="offScanBtn" style="display:inline-flex; align-items:center; gap:4px; padding:6px 12px; background:#1565c0; color:#fff; border-radius:6px; cursor:pointer; font-size:14px; font-weight:600;">
+            📷 Scanner
+            <input id="offScanInput" type="file" accept="image/*" capture="environment" style="display:none;" />
+          </label>
         </div>
         <div id="offResults" style="margin-top:8px;"></div>
       </div>
@@ -481,11 +484,6 @@ root.innerHTML = `
     </div>
   </div>
 
-  <div id="offScanModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:2000; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
-    <p style="color:#fff; font-size:14px; margin:0;" id="offScanStatus">Démarrage de la caméra…</p>
-    <video id="offScanVideo" style="max-width:360px; width:90%; border-radius:12px;" autoplay playsinline muted></video>
-    <button id="offScanClose" style="background:#fff; color:#111; border:none; border-radius:8px; padding:10px 28px; font-size:15px; cursor:pointer;">Fermer</button>
-  </div>
 `;
 
 const $ = (q) => document.querySelector(q);
@@ -1329,11 +1327,7 @@ function showUndoToast() {
 // ── Open Food Facts ─────────────────────────────────────────────────────────
 
 let _offResults = [];
-let _offScanStream = null;
-let _offScanInterval = null;
-let _offZxingReader = null;
 let _offSearching = false;
-let _offScanDone = false;
 
 function _offGet(nutriments, key) {
   const v = nutriments?.[key + "_100g"];
@@ -1453,72 +1447,39 @@ window.offImport = function(index) {
   $("#prodName").focus();
 };
 
-async function offStartScanner() {
-  const modal = $("#offScanModal");
-  const video = $("#offScanVideo");
-  const status = $("#offScanStatus");
-  if (!modal || !video) return;
+async function offDecodePhoto(file) {
+  const div = $("#offResults");
+  if (div) div.innerHTML = "<p style='opacity:.7'>Analyse de la photo…</p>";
 
-  _offScanDone = false;
-  modal.style.display = "flex";
-  status.textContent = "Démarrage de la caméra…";
-
-  try {
-    if ("BarcodeDetector" in window) {
-      // Native API (Chrome, Safari 17+)
-      _offScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      video.srcObject = _offScanStream;
-      await video.play();
+  // Try native BarcodeDetector first
+  if ("BarcodeDetector" in window) {
+    try {
       const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"] });
-      status.textContent = "Pointez vers un code-barres…";
-      _offScanInterval = setInterval(async () => {
-        if (video.readyState < 2 || _offScanDone) return;
-        try {
-          const codes = await detector.detect(video);
-          if (codes.length > 0) {
-            _offScanDone = true;
-            const code = codes[0].rawValue;
-            offStopScanner();
-            const searchEl = $("#offSearch");
-            if (searchEl) searchEl.value = code;
-            await offSearchByBarcode(code);
-            $("#offResults")?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        } catch { /* ignore frame errors */ }
-      }, 300);
-    } else {
-      // Fallback ZXing (Safari < 17, Firefox…)
-      const { BrowserMultiFormatReader } = await import("@zxing/browser");
-      const reader = new BrowserMultiFormatReader();
-      _offZxingReader = reader;
-      _offScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      video.srcObject = _offScanStream;
-      await video.play();
-      status.textContent = "Pointez vers un code-barres…";
-      reader.decodeFromStream(_offScanStream, video, (result) => {
-        if (result && !_offScanDone) {
-          _offScanDone = true;
-          const code = result.getText();
-          offStopScanner();
-          const searchEl = $("#offSearch");
-          if (searchEl) searchEl.value = code;
-          offSearchByBarcode(code).then(() => {
-            $("#offResults")?.scrollIntoView({ behavior: "smooth", block: "start" });
-          });
-        }
-      });
-    }
-  } catch (err) {
-    status.textContent = "Impossible d'accéder à la caméra : " + err.message;
+      const codes = await detector.detect(file);
+      if (codes.length > 0) {
+        const code = codes[0].rawValue;
+        if ($("#offSearch")) $("#offSearch").value = code;
+        return offSearchByBarcode(code);
+      }
+    } catch { /* fallthrough to ZXing */ }
   }
-}
 
-function offStopScanner() {
-  if (_offScanInterval) { clearInterval(_offScanInterval); _offScanInterval = null; }
-  if (_offZxingReader)  { try { _offZxingReader.reset(); } catch {} _offZxingReader = null; }
-  if (_offScanStream)   { _offScanStream.getTracks().forEach(t => t.stop()); _offScanStream = null; }
-  const modal = $("#offScanModal");
-  if (modal) modal.style.display = "none";
+  // Fallback: ZXing image decode
+  try {
+    const { BrowserMultiFormatReader } = await import("@zxing/browser");
+    const reader = new BrowserMultiFormatReader();
+    const url = URL.createObjectURL(file);
+    try {
+      const result = await reader.decodeFromImageUrl(url);
+      const code = result.getText();
+      if ($("#offSearch")) $("#offSearch").value = code;
+      return offSearchByBarcode(code);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  } catch {
+    if (div) div.innerHTML = "<p style='color:orange;'>Code-barres non reconnu sur la photo.<br>Essaie de te rapprocher ou d'améliorer l'éclairage, puis rescanne.</p>";
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -7439,8 +7400,10 @@ $("#compareClear").addEventListener("click", () => {
 });
 $("#offSearchBtn").addEventListener("click", () => offSearchByName($("#offSearch").value));
 $("#offSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") offSearchByName(e.target.value); });
-$("#offScanBtn").addEventListener("click", offStartScanner);
-$("#offScanClose").addEventListener("click", offStopScanner);
+$("#offScanInput").addEventListener("change", (e) => {
+  const file = e.target.files?.[0];
+  if (file) { offDecodePhoto(file); e.target.value = ""; }
+});
 $("#prodImageUrl").addEventListener("input", (e) => {
   setProductImagePreview(e.target.value.trim());
 });

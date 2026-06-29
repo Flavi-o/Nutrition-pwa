@@ -1209,7 +1209,7 @@ async function pushToCloud() {
       updated_at: new Date().toISOString(),
     });
   if (error) {
-    setCloudStatus("Erreur lors de l'envoi cloud.");
+    setCloudStatus(`Erreur: ${error.message || error.code || JSON.stringify(error)}`);
   } else {
     setCloudStatus("Sync cloud ok.");
   }

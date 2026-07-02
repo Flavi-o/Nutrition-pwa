@@ -1,0 +1,713 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK THEME — complete visual overhaul
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --dk-bg:       #000000;
+  --dk-surface:  #1c1c1e;
+  --dk-surface2: #2c2c2e;
+  --dk-border:   #38383a;
+  --dk-text:     #ffffff;
+  --dk-muted:    #8e8e93;
+  --dk-accent:   #3b82f6;
+  --dk-green:    #30d158;
+  --dk-red:      #ff453a;
+  --dk-orange:   #ff9f0a;
+}
+
+/* ─── Global ────────────────────────────────────────────────────────────── */
+html, body { background: var(--dk-bg) !important; }
+
+#appShell {
+  background: var(--dk-bg) !important;
+  color: var(--dk-text) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif !important;
+}
+
+#appShell > h1 { display: none !important; }
+
+/* ─── Override inline light backgrounds ─────────────────────────────────── */
+#appShell *[style*="background:#f"],
+#appShell *[style*="background: #f"],
+#appShell *[style*="background:#e"],
+#appShell *[style*="background: #e"],
+#appShell *[style*="background:#d"],
+#appShell *[style*="background:white"],
+#appShell *[style*="background: white"],
+#appShell *[style*="background: rgb(255"] {
+  background: var(--dk-surface) !important;
+}
+
+/* Keep colored backgrounds (accent buttons) */
+#appShell *[style*="background:#4f46e5"],
+#appShell *[style*="background:#0ea5e9"],
+#appShell *[style*="background:#10b981"],
+#appShell *[style*="background:#ef4444"],
+#appShell *[style*="background:#f59e0b"],
+#appShell *[style*="background:#8b5cf6"],
+#appShell *[style*="background:#ec4899"],
+#appShell *[style*="background:#0f172a"],
+#appShell *[style*="background:#1e293b"],
+#appShell *[style*="background:#374151"],
+#appShell *[style*="background:#111827"] {
+  background: unset !important;
+}
+#appShell *[style*="background:#4f46e5"] { background: #4f46e5 !important; }
+#appShell *[style*="background:#0ea5e9"] { background: #0ea5e9 !important; }
+#appShell *[style*="background:#10b981"] { background: #10b981 !important; }
+#appShell *[style*="background:#ef4444"] { background: #ef4444 !important; }
+#appShell *[style*="background:#f59e0b"] { background: #f59e0b !important; }
+#appShell *[style*="background:#8b5cf6"] { background: #8b5cf6 !important; }
+#appShell *[style*="background:#ec4899"] { background: #ec4899 !important; }
+#appShell *[style*="background:#0f172a"] { background: #0f172a !important; }
+#appShell *[style*="background:#1e293b"] { background: #1e293b !important; }
+#appShell *[style*="background:#374151"] { background: #374151 !important; }
+
+/* ─── Override dark text to white ────────────────────────────────────────── */
+#appShell *[style*="color:#000"],
+#appShell *[style*="color:#111"],
+#appShell *[style*="color:#222"],
+#appShell *[style*="color:#333"],
+#appShell *[style*="color:#444"],
+#appShell *[style*="color:#555"],
+#appShell *[style*="color:#666"],
+#appShell *[style*="color:black"],
+#appShell *[style*="color: black"],
+#appShell *[style*="color:#1f2937"],
+#appShell *[style*="color:#374151"],
+#appShell *[style*="color:#4b5563"],
+#appShell *[style*="color:#6b7280"],
+#appShell *[style*="color:#374"] {
+  color: var(--dk-text) !important;
+}
+
+/* ─── Borders ────────────────────────────────────────────────────────────── */
+#appShell *[style*="border:1px solid #"] {
+  border-color: var(--dk-border) !important;
+}
+#appShell *[style*="border-bottom:1px solid"],
+#appShell *[style*="border-top:1px solid"] {
+  border-color: var(--dk-border) !important;
+}
+
+/* ─── Inputs ─────────────────────────────────────────────────────────────── */
+#appShell input:not([type="file"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+#appShell select,
+#appShell textarea {
+  background: var(--dk-surface2) !important;
+  color: var(--dk-text) !important;
+  border-color: var(--dk-border) !important;
+}
+#appShell input::placeholder,
+#appShell textarea::placeholder { color: var(--dk-muted) !important; }
+#appShell select option { background: var(--dk-surface2); color: var(--dk-text); }
+
+/* ─── Buttons (non-accent) ───────────────────────────────────────────────── */
+#appShell button:not(.meal-checkbox):not(.fab-meal):not(#navCloud):not([style*="background:#4f46"]):not([style*="background:#0ea5"]):not([style*="background:#10b9"]):not([style*="background:#ef44"]):not([style*="background:#f59e"]) {
+  background: var(--dk-surface2) !important;
+  color: var(--dk-text) !important;
+  border-color: var(--dk-border) !important;
+}
+
+/* ─── Nav active state ───────────────────────────────────────────────────── */
+#appNav button.nav-active {
+  background: var(--dk-accent) !important;
+  color: #fff !important;
+}
+
+/* ─── Tables ─────────────────────────────────────────────────────────────── */
+#appShell table { border-color: var(--dk-border) !important; }
+#appShell th { background: var(--dk-surface) !important; color: var(--dk-text) !important; }
+#appShell td { border-color: var(--dk-border) !important; }
+#appShell tr:nth-child(even) { background: rgba(255,255,255,.03) !important; }
+
+/* ─── Pre / code ─────────────────────────────────────────────────────────── */
+#appShell pre {
+  background: var(--dk-surface) !important;
+  color: #e0e0e0 !important;
+  border-color: var(--dk-border) !important;
+}
+
+/* ─── Modals ─────────────────────────────────────────────────────────────── */
+#cloudModal > div {
+  background: var(--dk-surface) !important;
+  color: var(--dk-text) !important;
+}
+#cloudModal input { color: var(--dk-text) !important; }
+#cloudStatus { color: var(--dk-muted) !important; }
+#cloudHelp { color: var(--dk-muted) !important; }
+
+/* ─── Week strip ─────────────────────────────────────────────────────────── */
+.week-strip {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 10px 0 16px;
+  gap: 2px;
+}
+.week-day {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.week-day-label {
+  font-size: 11px;
+  color: var(--dk-muted);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+.week-day-num {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--dk-text);
+}
+.week-day.today .week-day-num {
+  background: var(--dk-accent);
+  color: #fff;
+  font-weight: 700;
+}
+.week-day.selected .week-day-num {
+  background: var(--dk-accent);
+  color: #fff;
+}
+
+/* ─── Home page ──────────────────────────────────────────────────────────── */
+#pageHome {
+  padding: 0 4px;
+}
+.home-header {
+  text-align: center;
+  padding: 8px 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--dk-text);
+}
+.home-date {
+  text-align: center;
+  font-size: 13px;
+  color: var(--dk-muted);
+  margin-bottom: 12px;
+}
+.home-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.home-card {
+  background: var(--dk-surface) !important;
+  border-radius: 14px;
+  padding: 18px 14px;
+  cursor: pointer;
+  min-height: 100px;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+}
+.home-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  line-height: 1.2;
+  z-index: 1;
+  position: relative;
+}
+.home-card-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #1a3a5c, #1c1c1e);
+  border-radius: 14px;
+}
+.home-card-bg.green { background: linear-gradient(135deg, #0d3b2b, #1c1c1e); }
+
+/* Calorie ring */
+.calorie-ring-section {
+  background: var(--dk-surface) !important;
+  border-radius: 18px;
+  padding: 20px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.calorie-side {
+  flex: 1;
+  text-align: center;
+}
+.calorie-side-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--dk-text);
+  display: block;
+}
+.calorie-side-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--dk-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-top: 2px;
+}
+.calorie-ring-wrap {
+  position: relative;
+  width: 130px; height: 130px;
+  flex-shrink: 0;
+}
+.calorie-ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.calorie-ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+}
+.calorie-ring-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--dk-text);
+  line-height: 1;
+}
+.calorie-ring-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--dk-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+.macro-bars-section {
+  background: var(--dk-surface) !important;
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.macro-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.macro-row:last-child { margin-bottom: 0; }
+.macro-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dk-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width: 70px;
+  flex-shrink: 0;
+}
+.macro-bar-bg {
+  flex: 1;
+  height: 4px;
+  background: var(--dk-surface2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.macro-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--dk-accent);
+  transition: width .3s;
+}
+.macro-val {
+  font-size: 11px;
+  color: var(--dk-muted);
+  width: 80px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ─── Meal tracking page ─────────────────────────────────────────────────── */
+#pageMealtrack { padding: 0 4px; }
+
+.mealtrack-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0 12px;
+}
+.mealtrack-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--dk-text);
+}
+.plan-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.plan-select-wrap select {
+  flex: 1;
+  background: var(--dk-surface2) !important;
+  color: var(--dk-text) !important;
+  border: 1px solid var(--dk-border) !important;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.btn-manage-plans {
+  background: var(--dk-surface2) !important;
+  color: var(--dk-accent) !important;
+  border: 1px solid var(--dk-border) !important;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.meal-section {
+  background: var(--dk-surface) !important;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.meal-section-header {
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--dk-border);
+}
+.meal-section-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dk-text);
+  margin-bottom: 4px;
+}
+.meal-section-macros {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.meal-macro-col {
+  text-align: center;
+}
+.meal-macro-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--dk-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.meal-macro-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dk-text);
+}
+.meal-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--dk-border);
+  gap: 10px;
+  cursor: pointer;
+}
+.meal-item:last-child { border-bottom: none; }
+.meal-item-left {
+  width: 3px;
+  align-self: stretch;
+  background: var(--dk-accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+.meal-item-left.checked { opacity: 1; background: var(--dk-green); }
+.meal-item-info { flex: 1; min-width: 0; }
+.meal-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dk-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meal-item-sub {
+  font-size: 11px;
+  color: var(--dk-muted);
+  margin-top: 1px;
+}
+.meal-item-kcal {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dk-muted);
+  white-space: nowrap;
+}
+.meal-checkbox {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--dk-border) !important;
+  background: transparent !important;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.meal-checkbox.checked {
+  background: var(--dk-green) !important;
+  border-color: var(--dk-green) !important;
+  color: #fff;
+}
+.meal-checkbox.checked::after { content: "✓"; font-size: 13px; font-weight: 700; }
+.meal-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  color: var(--dk-accent) !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 13px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+}
+/* FAB add button */
+.fab-meal {
+  position: fixed;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 12px);
+  right: 16px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--dk-accent) !important;
+  color: #fff !important;
+  border: none !important;
+  font-size: 26px;
+  font-weight: 300;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(59,130,246,.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 900;
+}
+
+/* ─── Plan config page ───────────────────────────────────────────────────── */
+#pagePlanconfig { padding: 0 4px; }
+.plan-config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0 16px;
+}
+.plan-config-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dk-text);
+}
+.btn-add-plan {
+  background: var(--dk-accent) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.plan-card {
+  background: var(--dk-surface) !important;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.plan-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px 10px;
+}
+.plan-card-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dk-text);
+}
+.plan-card-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-plan-edit {
+  background: var(--dk-surface2) !important;
+  color: var(--dk-accent) !important;
+  border: 1px solid var(--dk-border) !important;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.btn-plan-delete {
+  background: rgba(255,69,58,.15) !important;
+  color: var(--dk-red) !important;
+  border: 1px solid rgba(255,69,58,.3) !important;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ─── Plus page ──────────────────────────────────────────────────────────── */
+#pagePlus { padding: 0 4px; }
+.plus-header {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dk-text);
+  padding: 8px 0 16px;
+}
+.plus-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.plus-item {
+  background: var(--dk-surface) !important;
+  border-radius: 14px;
+  padding: 18px 14px;
+  cursor: pointer;
+  border: none !important;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.plus-item-icon { font-size: 24px; }
+.plus-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dk-text) !important;
+}
+.plus-item-desc {
+  font-size: 11px;
+  color: var(--dk-muted) !important;
+}
+
+/* ─── Bottom nav (5-tab) ─────────────────────────────────────────────────── */
+#appNav {
+  position: fixed !important;
+  bottom: 0 !important; left: 0 !important; right: 0 !important; top: auto !important;
+  height: calc(56px + env(safe-area-inset-bottom, 0px));
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
+  display: flex !important;
+  align-items: stretch !important;
+  background: #111111 !important;
+  border-top: 1px solid #2a2a2a !important;
+  z-index: 1000 !important;
+  gap: 0 !important;
+}
+.nav-tab {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--dk-muted) !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  padding: 6px 4px !important;
+  border-radius: 0 !important;
+  min-height: unset !important;
+  transition: color .15s !important;
+}
+.nav-tab svg { width: 22px; height: 22px; flex-shrink: 0; }
+.nav-tab.nav-active { color: var(--dk-accent) !important; }
+.nav-tab.nav-active svg { stroke: var(--dk-accent); }
+
+/* ─── App shell padding for fixed nav ───────────────────────────────────── */
+#appShell {
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 8px) !important;
+  padding-top: 0 !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  max-width: 600px !important;
+}
+
+/* ─── Plan item editor modal ─────────────────────────────────────────────── */
+.meal-edit-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 2100;
+  display: flex; align-items: flex-end;
+  padding: 0;
+}
+.meal-edit-sheet {
+  background: var(--dk-surface);
+  border-radius: 20px 20px 0 0;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.meal-edit-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--dk-text);
+  margin-bottom: 14px;
+}
+.meal-edit-field { margin-bottom: 12px; }
+.meal-edit-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dk-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 4px;
+}
+.meal-edit-input {
+  width: 100%;
+  background: var(--dk-surface2) !important;
+  color: var(--dk-text) !important;
+  border: 1px solid var(--dk-border) !important;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 15px;
+}
+.meal-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.meal-edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.btn-save-item {
+  flex: 1;
+  background: var(--dk-accent) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 12px;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-cancel-item {
+  flex: 1;
+  background: var(--dk-surface2) !important;
+  color: var(--dk-text) !important;
+  border: 1px solid var(--dk-border) !important;
+  border-radius: 12px;
+  padding: 13px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* ─── Plan goals editor ──────────────────────────────────────────────────── */
+.plan-goals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}

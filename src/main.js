@@ -1,5 +1,6 @@
 import "./style.css";
 import "./mobile.css";
+import "./dark.css";
 import { createClient } from "@supabase/supabase-js";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -10,7 +11,7 @@ root.innerHTML = `
   <style>
     @media print {
       #globalEntryNav, #appShell > h1 { display: none !important; }
-      #appNav, #cloudSyncPanel, #pageRecipes, #pageProducts, #pageCompare, #pageJournal, #pageWeekPlan, #pageRappel, #pageTrash, #pageImport { display: none !important; }
+      #appNav, #cloudSyncPanel, #navCloud, #pageHome, #pageMealtrack, #pagePlanconfig, #pagePlus, #pageRecipes, #pageProducts, #pageCompare, #pageJournal, #pageWeekPlan, #pageRappel, #pageTrash, #pageImport { display: none !important; }
       #pageCreate { display: block !important; }
       #pageCreate > * { display: none !important; }
       #printCard { display: block !important; margin: 0 !important; padding: 0 !important; }
@@ -30,16 +31,27 @@ root.innerHTML = `
     <h1>Nutrition Recettes</h1>
 
 
-    <div id="appNav" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
-      <button id="navRecipes">Mes recettes</button>
-      <button id="navCreate">Création de recette</button>
-      <button id="navProducts">Bibliothèque de produit</button>
-      <button id="navCompare">Comparer produits</button>
-      <button id="navJournal">Journal & Planning</button>
-      <button id="navShop">🛒 Courses</button>
-      <button id="navRappel">Rappel</button>
-      <button id="navTrash">Poubelle</button>
-      <button id="navImport">Importer recette</button>
+    <div id="appNav">
+      <button id="navHome" class="nav-tab">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Accueil</span>
+      </button>
+      <button id="navMealtrack" class="nav-tab">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-8-15.03-8-15.03 0h15.03zM1.02 17h15v2h-15z"/></svg>
+        <span>Nutrition</span>
+      </button>
+      <button id="navRecipeTab" class="nav-tab">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-2v2h-4V2H8v2H6C4.9 4 4 4.9 4 6v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 18H6V6h2v2h8V6h2v14zM8 10h8v2H8zm0 4h8v2H8z"/></svg>
+        <span>Recettes</span>
+      </button>
+      <button id="navProductTab" class="nav-tab">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+        <span>Produits</span>
+      </button>
+      <button id="navPlus" class="nav-tab">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        <span>Plus</span>
+      </button>
     </div>
 
     <button id="navCloud" style="position:fixed; top:12px; right:12px; z-index:1500; background:#0ea5e9; color:#fff; border:none; border-radius:24px; padding:10px 16px; font-weight:700; font-size:14px; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.25);">☁️ Sync</button>
@@ -72,7 +84,123 @@ root.innerHTML = `
       </div>
     </div>
 
-    <div id="pageRecipes">
+    <!-- ══ HOME PAGE ══════════════════════════════════════════════════════ -->
+    <div id="pageHome">
+      <div class="home-header">Nutrition</div>
+      <div class="home-date" id="homeDateLabel"></div>
+      <div class="week-strip" id="homeWeekStrip"></div>
+      <div class="home-cards">
+        <div class="home-card" id="homeCardCourses" onclick="setPage('shop')">
+          <div class="home-card-bg"></div>
+          <div class="home-card-title">Liste de<br>courses</div>
+        </div>
+        <div class="home-card" id="homeCardPlans" onclick="setPage('mealtrack')">
+          <div class="home-card-bg green"></div>
+          <div class="home-card-title">Plans<br>alimentaires</div>
+        </div>
+      </div>
+      <div class="calorie-ring-section">
+        <div class="calorie-side">
+          <span class="calorie-side-val" id="homeKcalConsumed">0</span>
+          <span class="calorie-side-label">Kcal<br>consommée</span>
+        </div>
+        <div class="calorie-ring-wrap">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#2c2c2e" stroke-width="10"/>
+            <circle id="homeRingFill" cx="60" cy="60" r="52" fill="none" stroke="#3b82f6" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327"/>
+          </svg>
+          <div class="calorie-ring-center">
+            <span class="calorie-ring-val" id="homeKcalRemaining">2300</span>
+            <span class="calorie-ring-label">Kcal<br>restantes</span>
+          </div>
+        </div>
+        <div class="calorie-side">
+          <span class="calorie-side-val" id="homeKcalBurned">0</span>
+          <span class="calorie-side-label">Kcal<br>brûlée</span>
+        </div>
+      </div>
+      <div class="macro-bars-section">
+        <div class="macro-row">
+          <span class="macro-name">Glucides</span>
+          <div class="macro-bar-bg"><div class="macro-bar-fill" id="homeBarCarb" style="width:0%"></div></div>
+          <span class="macro-val"><span id="homeCarbVal">0</span> g / <span id="homeCarbGoal">337</span> g</span>
+        </div>
+        <div class="macro-row">
+          <span class="macro-name">Protéines</span>
+          <div class="macro-bar-bg"><div class="macro-bar-fill" id="homeBarProt" style="width:0%; background:#30d158"></div></div>
+          <span class="macro-val"><span id="homeProtVal">0</span> g / <span id="homeProtGoal">156</span> g</span>
+        </div>
+        <div class="macro-row">
+          <span class="macro-name">Lipides</span>
+          <div class="macro-bar-bg"><div class="macro-bar-fill" id="homeBarFat" style="width:0%; background:#ff9f0a"></div></div>
+          <span class="macro-val"><span id="homeFatVal">0</span> g / <span id="homeFatGoal">69</span> g</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MEAL TRACKING PAGE ═══════════════════════════════════════════════ -->
+    <div id="pageMealtrack" style="display:none;">
+      <div class="mealtrack-header">
+        <span class="mealtrack-title">Nutrition</span>
+        <span style="font-size:13px;color:var(--dk-muted);" id="mealtrackDateLabel"></span>
+      </div>
+      <div class="week-strip" id="mealtrackWeekStrip"></div>
+      <div class="plan-select-wrap">
+        <select id="activePlanSelect"></select>
+        <button class="btn-manage-plans" id="btnManagePlans">Gérer</button>
+      </div>
+      <div id="mealSectionsWrap"></div>
+      <button class="fab-meal" id="fabMealAdd">+</button>
+    </div>
+
+    <!-- ══ PLAN CONFIG PAGE ══════════════════════════════════════════════════ -->
+    <div id="pagePlanconfig" style="display:none;">
+      <div class="plan-config-header">
+        <span class="plan-config-title">Mes plans</span>
+        <button class="btn-add-plan" id="btnAddPlan">+ Nouveau plan</button>
+      </div>
+      <div id="planConfigList"></div>
+    </div>
+
+    <!-- ══ PLUS PAGE ════════════════════════════════════════════════════════ -->
+    <div id="pagePlus" style="display:none;">
+      <div class="plus-header">Plus</div>
+      <div class="plus-grid">
+        <button class="plus-item" onclick="setPage('journal')">
+          <span class="plus-item-icon">📅</span>
+          <span class="plus-item-name">Journal</span>
+          <span class="plus-item-desc">Planning hebdomadaire</span>
+        </button>
+        <button class="plus-item" onclick="setPage('compare')">
+          <span class="plus-item-icon">⚖️</span>
+          <span class="plus-item-name">Comparer</span>
+          <span class="plus-item-desc">Comparer les produits</span>
+        </button>
+        <button class="plus-item" onclick="setPage('rappel')">
+          <span class="plus-item-icon">⏰</span>
+          <span class="plus-item-name">Rappels</span>
+          <span class="plus-item-desc">Notifications repas</span>
+        </button>
+        <button class="plus-item" onclick="setPage('import')">
+          <span class="plus-item-icon">📥</span>
+          <span class="plus-item-name">Importer</span>
+          <span class="plus-item-desc">Importer une recette</span>
+        </button>
+        <button class="plus-item" onclick="setPage('trash')">
+          <span class="plus-item-icon">🗑️</span>
+          <span class="plus-item-name">Poubelle</span>
+          <span class="plus-item-desc">Éléments supprimés</span>
+        </button>
+        <button class="plus-item" onclick="setPage('create')">
+          <span class="plus-item-icon">✏️</span>
+          <span class="plus-item-name">Créer recette</span>
+          <span class="plus-item-desc">Nouvelle recette</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="pageRecipes" style="display:none;">
       <h2>Mes recettes</h2>
       <div id="storageIndicator" style="font-size:12px; opacity:.7; margin:4px 0 8px;"></div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:end; margin-bottom:8px;">
@@ -519,6 +647,8 @@ const SHOP_LISTS_KEY = "nutrition-pwa-shop-lists";
 const FREE_DAYS_KEY = "nutrition-pwa-free-days";
 const LOCAL_UPDATED_AT_KEY = "nutrition-pwa-local-updated-at";
 const CLOUD_TABLE = "nutrition_sync";
+const MEAL_PLANS_KEY = "nutrition-pwa-meal-plans";
+const DAILY_LOGS_KEY = "nutrition-pwa-daily-logs";
 const DB_NAME = "nutrition-pwa-db";
 const DB_STORE = "kv";
 const BACKUP_HISTORY_LIMIT = 20;
@@ -1522,7 +1652,7 @@ const state = {
   compareCategory: "",
   compareSelected: [],
   productEditId: null,
-  page: "recipes",
+  page: "home",
   track: { date: "", items: [] },
   trackHistory: {},
   trackProductSearch: "",
@@ -1540,6 +1670,10 @@ const state = {
   shopLists: [],
   freeDays: {},
   pdfFormat: "public",
+  mealPlans: [],
+  activePlanId: null,
+  dailyLogs: {},
+  currentLogDate: "",
 };
 
 const FIELDS = [
@@ -3194,7 +3328,7 @@ function formatTrashMeta(deletedAt) {
 
 function buildExportPayload() {
   return {
-    version: 6,
+    version: 7,
     exportedAt: Date.now(),
     products: state.products,
     recipes: state.recipes,
@@ -3204,6 +3338,9 @@ function buildExportPayload() {
     track: buildTrackPayload(),
     trackWeekTotals: state.trackWeekTotals,
     weekPlans: state.weekPlans || {},
+    mealPlans: state.mealPlans || [],
+    activePlanId: state.activePlanId || null,
+    dailyLogs: state.dailyLogs || {},
   };
 }
 
@@ -3246,10 +3383,12 @@ function applyImportPayload(data, { suppressCloud = false, localUpdatedAt = null
   state.source = "";
   state.steps = "";
   if (data.draft) applyDraftData(data.draft);
-  // Restore weekPlans if present
   if (data.weekPlans && typeof data.weekPlans === "object") {
     state.weekPlans = data.weekPlans;
   }
+  if (Array.isArray(data.mealPlans)) state.mealPlans = data.mealPlans;
+  if (data.activePlanId) state.activePlanId = data.activePlanId;
+  if (data.dailyLogs && typeof data.dailyLogs === "object") state.dailyLogs = data.dailyLogs;
   suppressCloudSync = !!suppressCloud;
   try {
     saveProducts();
@@ -5398,30 +5537,43 @@ function _renderShopDetail(el, listId) {
   });
 }
 
+const ALL_PAGES = ["home", "mealtrack", "planconfig", "plus", "recipes", "create", "products", "compare", "journal", "shop", "rappel", "trash", "import"];
+
 function updateNav() {
-  const items = [
-    { id: "#navRecipes", page: "recipes" },
-    { id: "#navCreate", page: "create" },
-    { id: "#navProducts", page: "products" },
-    { id: "#navCompare", page: "compare" },
-    { id: "#navJournal", page: "journal" },
-    { id: "#navShop", page: "shop" },
-    { id: "#navRappel", page: "rappel" },
-    { id: "#navTrash", page: "trash" },
-    { id: "#navImport", page: "import" },
-  ];
-  items.forEach(({ id, page }) => {
+  const tabMap = {
+    home: "#navHome",
+    mealtrack: "#navMealtrack",
+    planconfig: "#navMealtrack",
+    recipes: "#navRecipeTab",
+    create: "#navRecipeTab",
+    products: "#navProductTab",
+    compare: "#navProductTab",
+    plus: "#navPlus",
+    journal: "#navPlus",
+    shop: "#navHome",
+    rappel: "#navPlus",
+    trash: "#navPlus",
+    import: "#navPlus",
+  };
+  ["#navHome", "#navMealtrack", "#navRecipeTab", "#navProductTab", "#navPlus"].forEach(id => {
     const btn = $(id);
     if (!btn) return;
-    const active = state.page === page;
-    btn.disabled = active;
-    btn.style.fontWeight = active ? "700" : "400";
-    btn.classList.toggle("nav-active", active);
+    btn.classList.remove("nav-active");
+    btn.disabled = false;
   });
+  const activeTabId = tabMap[state.page];
+  if (activeTabId) {
+    const btn = $(activeTabId);
+    if (btn) btn.classList.add("nav-active");
+  }
 }
 
 function renderPage() {
   const pages = {
+    home: $("#pageHome"),
+    mealtrack: $("#pageMealtrack"),
+    planconfig: $("#pagePlanconfig"),
+    plus: $("#pagePlus"),
     recipes: $("#pageRecipes"),
     create: $("#pageCreate"),
     products: $("#pageProducts"),
@@ -5437,7 +5589,10 @@ function renderPage() {
     el.style.display = state.page === key ? "" : "none";
   });
   updateNav();
-  if (state.page === "products") renderProductLibrary();
+  if (state.page === "home") renderHomePage();
+  if (state.page === "mealtrack") renderMealtrackPage();
+  if (state.page === "planconfig") renderPlanConfigPage();
+  if (state.page === "products" || state.page === "productTab") renderProductLibrary();
   if (state.page === "compare") renderComparePage();
   if (state.page === "journal") renderJournalPage();
   if (state.page === "shop") renderShopPage();
@@ -5447,17 +5602,478 @@ function renderPage() {
 function setPage(page) {
   syncStateFromInputs();
   saveDraft();
-  const target = ["recipes", "create", "products", "compare", "journal", "shop", "rappel", "trash", "import"].includes(page) ? page : "recipes";
+  const target = ALL_PAGES.includes(page) ? page : "home";
   state.page = target;
   location.hash = target;
   renderPage();
   updateStorageIndicator();
+  window.scrollTo(0, 0);
 }
 
 function applyHashRoute() {
   const hash = location.hash.replace("#", "");
-  state.page = ["recipes", "create", "products", "compare", "journal", "shop", "rappel", "trash", "import"].includes(hash) ? hash : "recipes";
+  state.page = ALL_PAGES.includes(hash) ? hash : "home";
   renderPage();
+}
+
+/* ─── Week strip helper ──────────────────────────────────────────────────── */
+function renderWeekStrip(containerId, selectedDate, onSelect) {
+  const container = $(containerId);
+  if (!container) return;
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+  const days = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."];
+  const todayStr = todayKey();
+  container.innerHTML = days.map((label, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    const isToday = key === todayStr;
+    const isSelected = key === (selectedDate || todayStr);
+    return `<div class="week-day${isToday ? " today" : ""}${isSelected && !isToday ? " selected" : ""}"
+      data-date="${key}" onclick="(${onSelect.toString()})('${key}')">
+      <span class="week-day-label">${label}</span>
+      <span class="week-day-num">${d.getDate()}</span>
+    </div>`;
+  }).join("");
+}
+
+/* ─── Home page render ───────────────────────────────────────────────────── */
+function renderHomePage() {
+  const today = new Date();
+  const months = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  const lbl = $("#homeDateLabel");
+  if (lbl) lbl.textContent = `${months[today.getMonth()]} ${today.getFullYear()}`;
+  renderWeekStrip("homeWeekStrip", state.currentLogDate || todayKey(), (d) => {
+    state.currentLogDate = d;
+    renderHomePage();
+  });
+  updateHomeCalorieRing();
+}
+
+function updateHomeCalorieRing() {
+  const dateKey = state.currentLogDate || todayKey();
+  const log = state.dailyLogs[dateKey];
+  const plan = log?.planId ? state.mealPlans.find(p => p.id === log.planId)
+    : (state.activePlanId ? state.mealPlans.find(p => p.id === state.activePlanId) : state.mealPlans[0]);
+
+  const goals = plan?.goals || { kcal: 2300, prot: 156, carb: 337, fat: 69 };
+  const checked = log?.checked || {};
+
+  let consumed = { kcal: 0, prot: 0, carb: 0, fat: 0 };
+  if (plan) {
+    plan.meals.forEach(meal => {
+      meal.items.forEach(item => {
+        if (checked[item.id]) {
+          consumed.kcal += item.kcal || 0;
+          consumed.prot += item.prot || 0;
+          consumed.carb += item.carb || 0;
+          consumed.fat  += item.fat  || 0;
+        }
+      });
+    });
+  }
+
+  const remaining = Math.max(0, goals.kcal - consumed.kcal);
+  const pct = Math.min(1, consumed.kcal / (goals.kcal || 1));
+  const circumference = 327;
+  const offset = circumference * (1 - pct);
+
+  const el = (id) => document.getElementById(id);
+  if (el("homeKcalConsumed")) el("homeKcalConsumed").textContent = Math.round(consumed.kcal);
+  if (el("homeKcalRemaining")) el("homeKcalRemaining").textContent = Math.round(remaining);
+  if (el("homeRingFill")) el("homeRingFill").style.strokeDashoffset = offset;
+  if (el("homeCarbVal")) el("homeCarbVal").textContent = Math.round(consumed.carb);
+  if (el("homeCarbGoal")) el("homeCarbGoal").textContent = goals.carb;
+  if (el("homeProtVal")) el("homeProtVal").textContent = Math.round(consumed.prot);
+  if (el("homeProtGoal")) el("homeProtGoal").textContent = goals.prot;
+  if (el("homeFatVal")) el("homeFatVal").textContent = Math.round(consumed.fat);
+  if (el("homeFatGoal")) el("homeFatGoal").textContent = goals.fat;
+  const pctCarb = Math.min(100, (consumed.carb / (goals.carb || 1)) * 100);
+  const pctProt = Math.min(100, (consumed.prot / (goals.prot || 1)) * 100);
+  const pctFat  = Math.min(100, (consumed.fat  / (goals.fat  || 1)) * 100);
+  if (el("homeBarCarb")) el("homeBarCarb").style.width = pctCarb + "%";
+  if (el("homeBarProt")) el("homeBarProt").style.width = pctProt + "%";
+  if (el("homeBarFat"))  el("homeBarFat").style.width  = pctFat  + "%";
+}
+
+/* ─── Meal tracking page render ──────────────────────────────────────────── */
+function renderMealtrackPage() {
+  const dateKey = state.currentLogDate || todayKey();
+  state.currentLogDate = dateKey;
+
+  const lbl = $("#mealtrackDateLabel");
+  if (lbl) {
+    const d = new Date(dateKey + "T12:00:00");
+    const days = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
+    const months = ["jan","fév","mar","avr","mai","juin","juil","août","sep","oct","nov","déc"];
+    lbl.textContent = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+  }
+
+  renderWeekStrip("mealtrackWeekStrip", dateKey, (d) => {
+    state.currentLogDate = d;
+    renderMealtrackPage();
+    renderHomePage();
+  });
+
+  // Plan selector
+  const sel = $("#activePlanSelect");
+  if (sel) {
+    sel.innerHTML = state.mealPlans.length
+      ? state.mealPlans.map(p => `<option value="${p.id}"${p.id === state.activePlanId ? " selected" : ""}>${p.name}</option>`).join("")
+      : `<option value="">Aucun plan — créez-en un</option>`;
+    if (!state.activePlanId && state.mealPlans.length) {
+      state.activePlanId = state.mealPlans[0].id;
+    }
+  }
+
+  const log = state.dailyLogs[dateKey] || { planId: state.activePlanId, checked: {} };
+  const plan = state.mealPlans.find(p => p.id === (log.planId || state.activePlanId));
+  const wrap = $("#mealSectionsWrap");
+  if (!wrap) return;
+
+  if (!plan) {
+    wrap.innerHTML = `<div style="text-align:center; padding:40px 16px; color:var(--dk-muted);">
+      <div style="font-size:40px; margin-bottom:12px;">🍽</div>
+      <div style="font-size:16px; font-weight:600; color:var(--dk-text); margin-bottom:8px;">Aucun plan alimentaire</div>
+      <div style="font-size:14px; margin-bottom:20px;">Crée ton premier plan pour commencer à suivre tes repas.</div>
+      <button class="btn-add-plan" onclick="setPage('planconfig')" style="margin:0 auto; display:block;">+ Créer un plan</button>
+    </div>`;
+    return;
+  }
+
+  const checked = log.checked || {};
+  wrap.innerHTML = plan.meals.map((meal, mi) => {
+    const mealConsumed = meal.items.reduce((acc, item) => {
+      if (checked[item.id]) {
+        acc.kcal += item.kcal || 0;
+        acc.prot += item.prot || 0;
+        acc.carb += item.carb || 0;
+        acc.fat  += item.fat  || 0;
+      }
+      return acc;
+    }, { kcal: 0, prot: 0, carb: 0, fat: 0 });
+
+    const items = meal.items.map((item, ii) => {
+      const isChecked = !!checked[item.id];
+      return `<div class="meal-item" onclick="toggleMealItem('${dateKey}','${plan.id}','${item.id}')">
+        <div class="meal-item-left${isChecked ? " checked" : ""}"></div>
+        <div class="meal-item-info">
+          <div class="meal-item-name">${esc(item.name)}</div>
+          <div class="meal-item-sub">Issu du plan <strong>${esc(plan.name)}</strong> · ${item.qty} ${esc(item.unit || "g")}</div>
+        </div>
+        <span class="meal-item-kcal">· ${item.kcal || 0} kcal</span>
+        <button class="meal-checkbox${isChecked ? " checked" : ""}" onclick="event.stopPropagation(); toggleMealItem('${dateKey}','${plan.id}','${item.id}')"></button>
+      </div>`;
+    }).join("");
+
+    return `<div class="meal-section">
+      <div class="meal-section-header">
+        <div class="meal-section-name">${esc(meal.name)}</div>
+        <div class="meal-section-macros">
+          <div class="meal-macro-col"><div class="meal-macro-label">Énergie</div><div class="meal-macro-val">${Math.round(mealConsumed.kcal)} kcal</div></div>
+          <div class="meal-macro-col"><div class="meal-macro-label">Glucides</div><div class="meal-macro-val">${Math.round(mealConsumed.carb)} g</div></div>
+          <div class="meal-macro-col"><div class="meal-macro-label">Protéines</div><div class="meal-macro-val">${Math.round(mealConsumed.prot)} g</div></div>
+          <div class="meal-macro-col"><div class="meal-macro-label">Lipides</div><div class="meal-macro-val">${Math.round(mealConsumed.fat)} g</div></div>
+        </div>
+      </div>
+      ${items}
+    </div>`;
+  }).join("");
+}
+
+function toggleMealItem(dateKey, planId, itemId) {
+  if (!state.dailyLogs[dateKey]) {
+    state.dailyLogs[dateKey] = { planId, checked: {} };
+  }
+  const log = state.dailyLogs[dateKey];
+  log.planId = planId;
+  log.checked[itemId] = !log.checked[itemId];
+  saveDailyLogs();
+  renderMealtrackPage();
+  updateHomeCalorieRing();
+  markLocalUpdated();
+}
+
+/* ─── Plan config page render ────────────────────────────────────────────── */
+function renderPlanConfigPage() {
+  const list = $("#planConfigList");
+  if (!list) return;
+  if (!state.mealPlans.length) {
+    list.innerHTML = `<div style="text-align:center; padding:40px 16px; color:var(--dk-muted);">
+      <div style="font-size:14px;">Aucun plan. Clique sur "+ Nouveau plan" pour commencer.</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML = state.mealPlans.map(plan => {
+    const totalKcal = plan.meals.reduce((a, m) => a + m.items.reduce((b, i) => b + (i.kcal || 0), 0), 0);
+    const totalItems = plan.meals.reduce((a, m) => a + m.items.length, 0);
+    return `<div class="plan-card">
+      <div class="plan-card-header">
+        <div>
+          <div class="plan-card-name">${esc(plan.name)}</div>
+          <div style="font-size:12px; color:var(--dk-muted); margin-top:2px;">${totalItems} aliments · ${Math.round(totalKcal)} kcal/jour</div>
+        </div>
+        <div class="plan-card-actions">
+          <button class="btn-plan-edit" onclick="openPlanEditor('${plan.id}')">Éditer</button>
+          <button class="btn-plan-delete" onclick="deletePlan('${plan.id}')">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* ─── Plan editor (modal-like, within planconfig page) ───────────────────── */
+let _editingPlanId = null;
+
+function openPlanEditor(planId) {
+  _editingPlanId = planId;
+  const plan = planId ? state.mealPlans.find(p => p.id === planId) : null;
+  renderPlanEditorPage(plan);
+}
+
+function renderPlanEditorPage(plan) {
+  const list = $("#planConfigList");
+  if (!list) return;
+  const meals = plan?.meals || [
+    { id: uid(), name: "Petit-déjeuner", items: [] },
+    { id: uid(), name: "Collation du matin", items: [] },
+    { id: uid(), name: "Déjeuner", items: [] },
+    { id: uid(), name: "Collation après-midi", items: [] },
+    { id: uid(), name: "Dîner", items: [] },
+  ];
+
+  const mealsHtml = meals.map((meal, mi) => {
+    const itemsHtml = meal.items.map((item, ii) => `
+      <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--dk-border);">
+        <div style="flex:1;">
+          <div style="font-size:14px; font-weight:600;">${esc(item.name)}</div>
+          <div style="font-size:12px; color:var(--dk-muted);">${item.qty} ${esc(item.unit||"g")} · ${item.kcal||0} kcal</div>
+        </div>
+        <button onclick="removeItemFromMeal('${meal.id}','${item.id}')"
+          style="background:rgba(255,69,58,.15)!important;color:var(--dk-red)!important;border:none!important;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;">✕</button>
+      </div>`).join("");
+
+    return `<div class="meal-section" style="margin-bottom:10px;">
+      <div class="meal-section-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <input value="${esc(meal.name)}" data-meal-id="${meal.id}" data-meal-name="1"
+          style="background:transparent!important;border:none!important;font-size:15px;font-weight:700;color:var(--dk-text)!important;padding:0;width:60%;"
+          onchange="renameMeal('${meal.id}',this.value)"/>
+        <button onclick="deleteMealSection('${meal.id}')"
+          style="background:transparent!important;color:var(--dk-muted)!important;border:none!important;font-size:13px;cursor:pointer;">Supprimer</button>
+      </div>
+      <div style="padding:0 14px;">${itemsHtml}</div>
+      <button class="meal-add-btn" onclick="openAddItemModal('${meal.id}')">+ Ajouter un aliment</button>
+    </div>`;
+  }).join("");
+
+  list.innerHTML = `
+    <div style="margin-bottom:14px;">
+      <label class="meal-edit-label">Nom du plan</label>
+      <input id="planEditorName" class="meal-edit-input" value="${esc(plan?.name || "")}" placeholder="Ex: DIETE, FREE..."/>
+    </div>
+    <div class="plan-goals-grid" style="margin-bottom:14px;">
+      <div><label class="meal-edit-label">Kcal/jour</label><input id="planGoalKcal" class="meal-edit-input" type="number" value="${plan?.goals?.kcal||2300}"/></div>
+      <div><label class="meal-edit-label">Protéines (g)</label><input id="planGoalProt" class="meal-edit-input" type="number" value="${plan?.goals?.prot||156}"/></div>
+      <div><label class="meal-edit-label">Glucides (g)</label><input id="planGoalCarb" class="meal-edit-input" type="number" value="${plan?.goals?.carb||337}"/></div>
+      <div><label class="meal-edit-label">Lipides (g)</label><input id="planGoalFat" class="meal-edit-input" type="number" value="${plan?.goals?.fat||69}"/></div>
+    </div>
+    <div style="margin-bottom:12px; display:flex; gap:10px; align-items:center;">
+      <strong style="flex:1; font-size:15px;">Repas</strong>
+      <button class="meal-add-btn" style="width:auto;padding:6px 12px;" onclick="addMealSection()">+ Repas</button>
+    </div>
+    ${mealsHtml}
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn-save-item" onclick="savePlanEditor()">Enregistrer</button>
+      <button class="btn-cancel-item" onclick="renderPlanConfigPage()">Annuler</button>
+    </div>`;
+
+  // store temp meals for editing
+  window._editingMeals = JSON.parse(JSON.stringify(meals));
+}
+
+function uid() { return crypto.randomUUID(); }
+
+function renameMeal(mealId, newName) {
+  const meal = window._editingMeals?.find(m => m.id === mealId);
+  if (meal) meal.name = newName;
+}
+
+function addMealSection() {
+  if (!window._editingMeals) window._editingMeals = [];
+  window._editingMeals.push({ id: uid(), name: "Nouveau repas", items: [] });
+  const plan = _editingPlanId ? state.mealPlans.find(p => p.id === _editingPlanId) : null;
+  renderPlanEditorPage({ ...(plan||{}), meals: window._editingMeals });
+}
+
+function deleteMealSection(mealId) {
+  if (!window._editingMeals) return;
+  window._editingMeals = window._editingMeals.filter(m => m.id !== mealId);
+  const plan = _editingPlanId ? state.mealPlans.find(p => p.id === _editingPlanId) : null;
+  renderPlanEditorPage({ ...(plan||{}), meals: window._editingMeals });
+}
+
+function removeItemFromMeal(mealId, itemId) {
+  if (!window._editingMeals) return;
+  const meal = window._editingMeals.find(m => m.id === mealId);
+  if (meal) meal.items = meal.items.filter(i => i.id !== itemId);
+  const plan = _editingPlanId ? state.mealPlans.find(p => p.id === _editingPlanId) : null;
+  renderPlanEditorPage({ ...(plan||{}), meals: window._editingMeals });
+}
+
+function savePlanEditor() {
+  const name = ($("#planEditorName")?.value || "").trim();
+  if (!name) return alert("Donne un nom au plan.");
+  const goals = {
+    kcal: parseFloat($("#planGoalKcal")?.value) || 2300,
+    prot: parseFloat($("#planGoalProt")?.value) || 156,
+    carb: parseFloat($("#planGoalCarb")?.value) || 337,
+    fat:  parseFloat($("#planGoalFat")?.value)  || 69,
+  };
+  // Sync meal name inputs before saving
+  document.querySelectorAll("[data-meal-name]").forEach(inp => {
+    const m = window._editingMeals?.find(m => m.id === inp.dataset.mealId);
+    if (m) m.name = inp.value;
+  });
+  if (_editingPlanId) {
+    const idx = state.mealPlans.findIndex(p => p.id === _editingPlanId);
+    if (idx >= 0) state.mealPlans[idx] = { ...state.mealPlans[idx], name, goals, meals: window._editingMeals || [] };
+  } else {
+    state.mealPlans.push({ id: uid(), name, goals, meals: window._editingMeals || [] });
+  }
+  if (!state.activePlanId && state.mealPlans.length) state.activePlanId = state.mealPlans[0].id;
+  saveMealPlans();
+  markLocalUpdated();
+  _editingPlanId = null;
+  window._editingMeals = null;
+  renderPlanConfigPage();
+}
+
+function deletePlan(planId) {
+  if (!confirm("Supprimer ce plan ?")) return;
+  state.mealPlans = state.mealPlans.filter(p => p.id !== planId);
+  if (state.activePlanId === planId) state.activePlanId = state.mealPlans[0]?.id || null;
+  saveMealPlans();
+  markLocalUpdated();
+  renderPlanConfigPage();
+}
+
+/* ─── Add item to meal (modal sheet) ────────────────────────────────────── */
+let _addItemMealId = null;
+
+function openAddItemModal(mealId) {
+  _addItemMealId = mealId;
+  // Search products
+  const modal = document.createElement("div");
+  modal.className = "meal-edit-modal";
+  modal.id = "addItemModal";
+  const prods = state.products.map(p => `<option value="${p.id}">${esc(p.name)} (${p.kcal||0} kcal/100g)</option>`).join("");
+  modal.innerHTML = `<div class="meal-edit-sheet">
+    <div class="meal-edit-title">Ajouter un aliment</div>
+    <div class="meal-edit-field">
+      <label class="meal-edit-label">Nom de l'aliment</label>
+      <input id="addItemName" class="meal-edit-input" placeholder="Banane, Riz blanc..." list="addItemProdList"/>
+      <datalist id="addItemProdList">${prods}</datalist>
+    </div>
+    <div class="meal-edit-grid">
+      <div class="meal-edit-field">
+        <label class="meal-edit-label">Quantité</label>
+        <input id="addItemQty" class="meal-edit-input" type="number" value="100" min="0"/>
+      </div>
+      <div class="meal-edit-field">
+        <label class="meal-edit-label">Unité</label>
+        <input id="addItemUnit" class="meal-edit-input" value="g" placeholder="g, ml, portion..."/>
+      </div>
+    </div>
+    <div class="meal-edit-grid">
+      <div class="meal-edit-field">
+        <label class="meal-edit-label">Kcal</label>
+        <input id="addItemKcal" class="meal-edit-input" type="number" value="0" min="0"/>
+      </div>
+      <div class="meal-edit-field">
+        <label class="meal-edit-label">Protéines (g)</label>
+        <input id="addItemProt" class="meal-edit-input" type="number" value="0" min="0"/>
+      </div>
+      <div class="meal-edit-field">
+        <label class="meal-edit-label">Glucides (g)</label>
+        <input id="addItemCarb" class="meal-edit-input" type="number" value="0" min="0"/>
+      </div>
+      <div class="meal-edit-field">
+        <label class="meal-edit-label">Lipides (g)</label>
+        <input id="addItemFat" class="meal-edit-input" type="number" value="0" min="0"/>
+      </div>
+    </div>
+    <div class="meal-edit-actions">
+      <button class="btn-save-item" onclick="confirmAddItem()">Ajouter</button>
+      <button class="btn-cancel-item" onclick="closeAddItemModal()">Annuler</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+
+  // Auto-fill from product library
+  $("#addItemName")?.addEventListener("input", function() {
+    const val = this.value.toLowerCase();
+    const prod = state.products.find(p => p.name.toLowerCase() === val || p.id === val);
+    if (prod) {
+      const qty = 100;
+      const ratio = qty / 100;
+      if ($("#addItemKcal")) $("#addItemKcal").value = Math.round((prod.kcal || 0) * ratio);
+      if ($("#addItemProt")) $("#addItemProt").value = Math.round((prod.prot || 0) * ratio * 10) / 10;
+      if ($("#addItemCarb")) $("#addItemCarb").value = Math.round((prod.carb || 0) * ratio * 10) / 10;
+      if ($("#addItemFat"))  $("#addItemFat").value  = Math.round((prod.fat  || 0) * ratio * 10) / 10;
+    }
+  });
+}
+
+function confirmAddItem() {
+  const name = ($("#addItemName")?.value || "").trim();
+  if (!name) return alert("Donne un nom à l'aliment.");
+  const item = {
+    id: uid(),
+    name,
+    qty: parseFloat($("#addItemQty")?.value) || 100,
+    unit: ($("#addItemUnit")?.value || "g").trim(),
+    kcal: parseFloat($("#addItemKcal")?.value) || 0,
+    prot: parseFloat($("#addItemProt")?.value) || 0,
+    carb: parseFloat($("#addItemCarb")?.value) || 0,
+    fat:  parseFloat($("#addItemFat")?.value)  || 0,
+  };
+  const meal = window._editingMeals?.find(m => m.id === _addItemMealId);
+  if (meal) meal.items.push(item);
+  closeAddItemModal();
+  const plan = _editingPlanId ? state.mealPlans.find(p => p.id === _editingPlanId) : null;
+  renderPlanEditorPage({ ...(plan||{}), meals: window._editingMeals || [] });
+}
+
+function closeAddItemModal() {
+  const m = document.getElementById("addItemModal");
+  if (m) m.remove();
+}
+
+/* ─── Save/load meal plans & daily logs ──────────────────────────────────── */
+async function saveMealPlans() {
+  await storageSet(MEAL_PLANS_KEY, state.mealPlans);
+  storageSetLocal(MEAL_PLANS_KEY + "-pid", state.activePlanId);
+}
+
+async function loadMealPlans() {
+  const data = await storageGet(MEAL_PLANS_KEY);
+  if (Array.isArray(data)) state.mealPlans = data;
+  const pid = storageGetLocal(MEAL_PLANS_KEY + "-pid");
+  if (pid) state.activePlanId = pid;
+  else if (state.mealPlans.length) state.activePlanId = state.mealPlans[0].id;
+}
+
+async function saveDailyLogs() {
+  await storageSet(DAILY_LOGS_KEY, state.dailyLogs);
+}
+
+async function loadDailyLogs() {
+  const data = await storageGet(DAILY_LOGS_KEY);
+  if (data && typeof data === "object") state.dailyLogs = data;
 }
 
 function addProductToRecipe(id) {
@@ -7124,6 +7740,18 @@ $("#productCategoryFilter").addEventListener("change", (e) => {
 $("#addProduct").addEventListener("click", addProduct);
 $("#cancelProductEdit").addEventListener("click", cancelProductEdit);
 $("#goToProducts").addEventListener("click", () => setPage("products"));
+$("#navHome")?.addEventListener("click", () => setPage("home"));
+$("#navMealtrack")?.addEventListener("click", () => setPage("mealtrack"));
+$("#navRecipeTab")?.addEventListener("click", () => setPage("recipes"));
+$("#navProductTab")?.addEventListener("click", () => setPage("products"));
+$("#navPlus")?.addEventListener("click", () => setPage("plus"));
+$("#btnManagePlans")?.addEventListener("click", () => setPage("planconfig"));
+$("#btnAddPlan")?.addEventListener("click", () => { _editingPlanId = null; window._editingMeals = null; renderPlanEditorPage(null); });
+$("#activePlanSelect")?.addEventListener("change", (e) => {
+  state.activePlanId = e.target.value;
+  saveMealPlans();
+  renderMealtrackPage();
+});
 $("#navRecipes").addEventListener("click", () => setPage("recipes"));
 $("#navCreate").addEventListener("click", () => setPage("create"));
 $("#navProducts").addEventListener("click", () => setPage("products"));
@@ -7488,6 +8116,9 @@ async function initApp() {
   await loadWeekPlans();
   await loadShopLists();
   await loadFreeDays();
+  await loadMealPlans();
+  await loadDailyLogs();
+  state.currentLogDate = todayKey();
   await maybeRestoreSessionBackupOnEmpty();
   await maybeRestoreBackupOnEmpty();
   await maybeAutoImportFromUrl();
